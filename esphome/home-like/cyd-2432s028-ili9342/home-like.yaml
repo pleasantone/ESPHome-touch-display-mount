@@ -25,7 +25,8 @@
 # 1) Edit the TILE1..TILE6 blocks below.
 # 2) If you change icons, update the FONT GLYPHS block in the substitutions below.
 #    Each glyph must appear exactly once — same icon on multiple tiles is fine, just list it once.
-# 3) Provide background images (see ORIENTATION section for which file each preset uses):
+# 3) Background images are downloaded at build time (see REMOTE ASSETS in the
+#    substitutions); each ORIENTATION preset picks the matching file:
 #    - images/smartdisplay_background.png    (0° and 180°)
 #    - images/smartdisplay_background_90.png (90° and 270°)
 #
@@ -59,7 +60,7 @@ substitutions:
 
   DIRECT_ACTIONS: "true"                           # true = call Home Assistant services directly, false = only emit action events
   ROOM_NAME: "Printers"                              # room name shown in the top-left header
-  TIME_24H: "true"                                 # true = 24h format, false = 12h format
+  TIME_24H: "false"                                # true = 24h format, false = 12h format
 
   ## DIM settings
   AUTO_DIM: "true"                                 # true = enable auto dimming
@@ -70,6 +71,19 @@ substitutions:
   NIGHT_START_HOUR: "22"                           # 0-23
   NIGHT_END_HOUR: "7"                              # 0-23
   NIGHT_DIM_BRIGHTNESS: "18"                       # backlight brightness in percent at night
+
+  # ============================================================
+  # REMOTE ASSETS
+  # Fonts and images are downloaded at build time, so this file is
+  # self-contained: nothing but the YAML is needed to compile it — e.g.
+  # in the ESPHome Device Builder add-on under Home Assistant, which has
+  # no access to this repository's fonts/ and images/ folders.
+  # ASSET_BASE floats on the repo's main branch. MDI_FONT_URL is pinned to a
+  # release tag on purpose: the MDI_GLYPH_* values are raw codepoints, and an
+  # unpinned font bump could quietly change which icon a tile shows.
+  # ============================================================
+  ASSET_BASE: "https://raw.githubusercontent.com/akuehlewind/ESPHome-touch-display-mount/main/esphome/home-like"
+  MDI_FONT_URL: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/v7.4.47/fonts/materialdesignicons-webfont.ttf"
 
   # ============================================================
   # FONT GLYPHS
@@ -426,7 +440,7 @@ substitutions:
   HEADER_Y: "14"
   OVERLAY_SLIDER_W: "96"
   OVERLAY_SLIDER_H: "160"
-  BG_IMAGE: "images/smartdisplay_background.png"
+  BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background.png"
   TILE_ICON_X: "0"
   TILE_ICON_Y: "0"
   TILE_TITLE_X: "48"
@@ -456,7 +470,7 @@ substitutions:
   # HEADER_Y: "14"
   # OVERLAY_SLIDER_W: "96"
   # OVERLAY_SLIDER_H: "200"
-  # BG_IMAGE: "images/smartdisplay_background_90.png"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background_90.png"
   # TILE_ICON_X: "0"
   # TILE_ICON_Y: "0"
   # TILE_TITLE_X: "4"
@@ -486,7 +500,7 @@ substitutions:
   # HEADER_Y: "14"
   # OVERLAY_SLIDER_W: "96"
   # OVERLAY_SLIDER_H: "160"
-  # BG_IMAGE: "images/smartdisplay_background.png"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background.png"
   # TILE_ICON_X: "0"
   # TILE_ICON_Y: "0"
   # TILE_TITLE_X: "48"
@@ -516,7 +530,7 @@ substitutions:
   # HEADER_Y: "14"
   # OVERLAY_SLIDER_W: "96"
   # OVERLAY_SLIDER_H: "200"
-  # BG_IMAGE: "images/smartdisplay_background_90.png"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background_90.png"
   # TILE_ICON_X: "0"
   # TILE_ICON_Y: "0"
   # TILE_TITLE_X: "4"
@@ -528,7 +542,8 @@ substitutions:
 # No need to edit below this line.
 # All configuration is done via the substitutions above.
 # Credentials are managed in secrets.yaml (see secrets.yaml.example).
-# The Material Design Icons font is included at fonts/materialdesignicons-webfont.ttf (Apache 2.0).
+# The Material Design Icons font (Apache 2.0) is downloaded from its upstream
+# repository at build time — see MDI_FONT_URL in the substitutions above.
 # Source: https://github.com/Templarian/MaterialDesign-Webfont
 # ============================================================
 
@@ -553,21 +568,26 @@ esp32:
 
 logger:
 
-# Credentials are loaded from secrets.yaml — copy secrets.yaml.example to secrets.yaml and fill in your values.
+# Credentials are loaded from secrets.yaml: /config/esphome/secrets.yaml under the
+# ESPHome Device Builder add-on, or the secrets.yaml symlink next to this file locally.
+# Keys used: wifi_ssid, wifi_password, api_encryption_key, ap_fallback_password.
 api:
   encryption:
-    key: !secret smartdisplay_api_key
+    key: !secret api_encryption_key
 
 ota:
   - platform: esphome
-    password: !secret ota_password
+    # No password: a bare 'encryption:' inherits the api encryption key, which
+    # authenticates the uploader and saves ~3.5 KB of flash. Switching a device
+    # that was flashed with a password requires one serial install.
+    encryption:
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   ap:
     ssid: "Smartdisplay Fallback Hotspot"
-    password: !secret wifi_ap_password
+    password: !secret ap_fallback_password
 
 captive_portal:
 
@@ -756,9 +776,10 @@ font:
              ' ','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
              'ä','ö','ü','Ä','Ö','Ü','ß','/','…']             
 
-  # Material Design Icons (MDI) — included at fonts/materialdesignicons-webfont.ttf (Apache 2.0)
+  # Material Design Icons (MDI, Apache 2.0) — downloaded at build time from the
+  # pinned MDI_FONT_URL; no local copy of the .ttf is needed.
   # Source: https://github.com/Templarian/MaterialDesign-Webfont
-  - file: 'fonts/materialdesignicons-webfont.ttf'
+  - file: "${MDI_FONT_URL}"
     id: materialdesign_icons
     size: 28
     glyphs:
@@ -771,7 +792,8 @@ font:
       - "\U000F012C" # check
 
 image:
-  - file: "${BG_IMAGE}"
+  - platform: file
+    file: "${BG_IMAGE}"
     id: bg_home
     type: RGB565
 

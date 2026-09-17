@@ -24,6 +24,8 @@ Thumbs.db
 ############################################
 secrets.yaml
 secrets.yml
+secrets-*.yaml
+secrets-*.yml
 *.local.yaml
 
 ############################################

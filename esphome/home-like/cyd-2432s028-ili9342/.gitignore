@@ -1,9 +1,7 @@
 # Gitignore settings for ESPHome
 /.esphome/
 
-# Symlink to ../../secrets.yaml (ESPHome only looks for secrets next to the config)
+# Symlink to ../../secrets-esphome.yaml, which uses the same key names as
+# /config/esphome/secrets.yaml in the ESPHome Device Builder add-on
+# (ESPHome only looks for secrets next to the config)
 /secrets.yaml
-
-# Local build symlinks to the shared assets one level up
-fonts
-images

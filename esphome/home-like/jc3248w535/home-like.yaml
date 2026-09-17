@@ -23,7 +23,7 @@
 # 1) Edit the TILE1..TILE8 blocks below.
 # 2) If you change icons, update the FONT GLYPHS block in the substitutions below.
 #    Each glyph must appear exactly once — same icon on multiple tiles is fine, just list it once.
-# 3) Background image: ../images/smartdisplay_background_320x480.png (shared home-like assets)
+# 3) Background image: downloaded at build time from ASSET_BASE (see REMOTE ASSETS)
 #
 # Tile configuration model
 # - TILE*_TYPE defines the entity kind: light | fan | switch | scene | script | cover
@@ -66,6 +66,20 @@ substitutions:
   NIGHT_START_HOUR: "22"                           # 0-23
   NIGHT_END_HOUR: "7"                              # 0-23
   NIGHT_DIM_BRIGHTNESS: "18"                       # backlight brightness in percent at night
+
+  # ============================================================
+  # REMOTE ASSETS
+  # Fonts and images are downloaded at build time, so this file is
+  # self-contained: nothing but the YAML is needed to compile it — e.g.
+  # in the ESPHome Device Builder add-on under Home Assistant, which has
+  # no access to this repository's fonts/ and images/ folders.
+  # ASSET_BASE points at the fork because the 320x480 background only
+  # exists there; it floats on that branch. MDI_FONT_URL is pinned to a
+  # release tag on purpose: the MDI_GLYPH_* values are raw codepoints, and
+  # an unpinned font bump could quietly change which icon a tile shows.
+  # ============================================================
+  ASSET_BASE: "https://raw.githubusercontent.com/pleasantone/ESPHome-touch-display-mount/local-panels/esphome/home-like"
+  MDI_FONT_URL: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/v7.4.47/fonts/materialdesignicons-webfont.ttf"
 
   # ============================================================
   # FONT GLYPHS
@@ -523,7 +537,7 @@ substitutions:
   HEADER_Y: "14"
   OVERLAY_SLIDER_W: "130"
   OVERLAY_SLIDER_H: "320"
-  BG_IMAGE: "../images/smartdisplay_background_320x480.png"
+  BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background_320x480.png"
   TILE_ICON_X: "0"
   TILE_ICON_Y: "0"
   TILE_TITLE_X: "2"
@@ -537,9 +551,13 @@ substitutions:
 # ============================================================
 # No need to edit below this line.
 # All configuration is done via the substitutions above.
-# Credentials are managed in secrets.yaml (see ../../secrets.yaml.example). ESPHome only looks
-# next to this file, so symlink it: ln -s ../../secrets.yaml secrets.yaml
-# The Material Design Icons font is shared at ../fonts/materialdesignicons-webfont.ttf (Apache 2.0).
+# Credentials are loaded from secrets.yaml: /config/esphome/secrets.yaml under the
+# ESPHome Device Builder add-on, or the secrets.yaml symlink next to this file locally
+# (ESPHome only looks next to the config: ln -s ../../secrets.yaml secrets.yaml).
+# Keys used: wifi_ssid, wifi_password, api_encryption_key, ap_fallback_password —
+# the names the ESPHome Device Builder add-on's secrets.yaml uses.
+# The Material Design Icons font (Apache 2.0) is downloaded from its upstream
+# repository at build time — see MDI_FONT_URL in the substitutions above.
 # Source: https://github.com/Templarian/MaterialDesign-Webfont
 # ============================================================
 
@@ -573,18 +591,21 @@ logger:
 # Credentials are loaded from secrets.yaml — copy secrets.yaml.example to secrets.yaml and fill in your values.
 api:
   encryption:
-    key: !secret smartdisplay_api_key
+    key: !secret api_encryption_key
 
 ota:
   - platform: esphome
-    password: !secret ota_password
+    # No password: a bare 'encryption:' inherits the api encryption key, which
+    # authenticates the uploader and saves ~3.5 KB of flash. Switching a device
+    # that was flashed with a password requires one serial install.
+    encryption:
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   ap:
     ssid: "Smartdisplay JC3248 Fallback"
-    password: !secret wifi_ap_password
+    password: !secret ap_fallback_password
 
 captive_portal:
 
@@ -777,9 +798,10 @@ font:
              ' ','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
              'ä','ö','ü','Ä','Ö','Ü','ß','/','…']             
 
-  # Material Design Icons (MDI) — shared at ../fonts/materialdesignicons-webfont.ttf (Apache 2.0)
+  # Material Design Icons (MDI, Apache 2.0) — downloaded at build time from the
+  # pinned MDI_FONT_URL; no local copy of the .ttf is needed.
   # Source: https://github.com/Templarian/MaterialDesign-Webfont
-  - file: '../fonts/materialdesignicons-webfont.ttf'
+  - file: "${MDI_FONT_URL}"
     id: materialdesign_icons
     size: 34
     glyphs:
@@ -792,7 +814,8 @@ font:
       - "\U000F012C" # check
 
 image:
-  - file: "${BG_IMAGE}"
+  - platform: file
+    file: "${BG_IMAGE}"
     id: bg_home
     type: RGB565
 
@@ -1454,7 +1477,12 @@ touchscreen:
   id: ts_touch
   i2c_id: touch_i2c
   display: my_display
-  interrupt_pin: GPIO3
+  # GPIO3 is an ESP32-S3 strapping pin (JTAG source select), but the touch
+  # controller's INT line is wired to it on this board and cannot be moved.
+  # It is an input driven by the AXS15231; the panel boots reliably with it.
+  interrupt_pin:
+    number: GPIO3
+    ignore_strapping_warning: true
 
   transform:
     swap_xy: ${TOUCH_SWAP_XY}
