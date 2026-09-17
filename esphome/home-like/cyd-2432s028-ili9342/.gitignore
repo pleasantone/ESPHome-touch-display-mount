@@ -1,0 +1,9 @@
+# Gitignore settings for ESPHome
+/.esphome/
+
+# Symlink to ../../secrets.yaml (ESPHome only looks for secrets next to the config)
+/secrets.yaml
+
+# Local build symlinks to the shared assets one level up
+fonts
+images
