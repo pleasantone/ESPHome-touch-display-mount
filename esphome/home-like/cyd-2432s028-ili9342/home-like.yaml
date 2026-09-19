@@ -1350,6 +1350,54 @@ text_sensor:
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
+    id: tile1_rgb_color
+    entity_id: ${TILE1_ENTITY}
+    attribute: rgb_color
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: tile2_rgb_color
+    entity_id: ${TILE2_ENTITY}
+    attribute: rgb_color
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: tile3_rgb_color
+    entity_id: ${TILE3_ENTITY}
+    attribute: rgb_color
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: tile4_rgb_color
+    entity_id: ${TILE4_ENTITY}
+    attribute: rgb_color
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: tile5_rgb_color
+    entity_id: ${TILE5_ENTITY}
+    attribute: rgb_color
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: tile6_rgb_color
+    entity_id: ${TILE6_ENTITY}
+    attribute: rgb_color
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: tile7_rgb_color
+    entity_id: ${TILE7_ENTITY}
+    attribute: rgb_color
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: tile8_rgb_color
+    entity_id: ${TILE8_ENTITY}
+    attribute: rgb_color
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
     id: tile1_climate_mode
     entity_id: ${TILE1_ENTITY}
     on_value: { then: [ script.execute: ui_refresh ] }
@@ -1870,6 +1918,7 @@ lvgl:
                               label_off: "${TILE1_LABEL_OFF}"
                               label_on: "${TILE1_LABEL_ON}"
                               supported_color_modes: !lambda "return std::string(id(tile1_supported_color_modes).state.c_str());"
+                              rgb_color: !lambda "return std::string(id(tile1_rgb_color).state.c_str());"
                               climate_current_temperature: !lambda "return id(tile1_climate_current_temperature).state;"
                               climate_target_temperature: !lambda "return id(tile1_climate_target_temperature).state;"
                               climate_humidity: !lambda "return id(tile1_climate_humidity).state;"
@@ -1979,6 +2028,7 @@ lvgl:
                               label_off: "${TILE2_LABEL_OFF}"
                               label_on: "${TILE2_LABEL_ON}"
                               supported_color_modes: !lambda "return std::string(id(tile2_supported_color_modes).state.c_str());"
+                              rgb_color: !lambda "return std::string(id(tile2_rgb_color).state.c_str());"
                               climate_current_temperature: !lambda "return id(tile2_climate_current_temperature).state;"
                               climate_target_temperature: !lambda "return id(tile2_climate_target_temperature).state;"
                               climate_humidity: !lambda "return id(tile2_climate_humidity).state;"
@@ -2088,6 +2138,7 @@ lvgl:
                               label_off: "${TILE3_LABEL_OFF}"
                               label_on: "${TILE3_LABEL_ON}"
                               supported_color_modes: !lambda "return std::string(id(tile3_supported_color_modes).state.c_str());"
+                              rgb_color: !lambda "return std::string(id(tile3_rgb_color).state.c_str());"
                               climate_current_temperature: !lambda "return id(tile3_climate_current_temperature).state;"
                               climate_target_temperature: !lambda "return id(tile3_climate_target_temperature).state;"
                               climate_humidity: !lambda "return id(tile3_climate_humidity).state;"
@@ -2197,6 +2248,7 @@ lvgl:
                               label_off: "${TILE4_LABEL_OFF}"
                               label_on: "${TILE4_LABEL_ON}"
                               supported_color_modes: !lambda "return std::string(id(tile4_supported_color_modes).state.c_str());"
+                              rgb_color: !lambda "return std::string(id(tile4_rgb_color).state.c_str());"
                               climate_current_temperature: !lambda "return id(tile4_climate_current_temperature).state;"
                               climate_target_temperature: !lambda "return id(tile4_climate_target_temperature).state;"
                               climate_humidity: !lambda "return id(tile4_climate_humidity).state;"
@@ -2306,6 +2358,7 @@ lvgl:
                               label_off: "${TILE5_LABEL_OFF}"
                               label_on: "${TILE5_LABEL_ON}"
                               supported_color_modes: !lambda "return std::string(id(tile5_supported_color_modes).state.c_str());"
+                              rgb_color: !lambda "return std::string(id(tile5_rgb_color).state.c_str());"
                               climate_current_temperature: !lambda "return id(tile5_climate_current_temperature).state;"
                               climate_target_temperature: !lambda "return id(tile5_climate_target_temperature).state;"
                               climate_humidity: !lambda "return id(tile5_climate_humidity).state;"
@@ -2415,6 +2468,7 @@ lvgl:
                               label_off: "${TILE6_LABEL_OFF}"
                               label_on: "${TILE6_LABEL_ON}"
                               supported_color_modes: !lambda "return std::string(id(tile6_supported_color_modes).state.c_str());"
+                              rgb_color: !lambda "return std::string(id(tile6_rgb_color).state.c_str());"
                               climate_current_temperature: !lambda "return id(tile6_climate_current_temperature).state;"
                               climate_target_temperature: !lambda "return id(tile6_climate_target_temperature).state;"
                               climate_humidity: !lambda "return id(tile6_climate_humidity).state;"
@@ -2524,6 +2578,7 @@ lvgl:
                               label_off: "${TILE7_LABEL_OFF}"
                               label_on: "${TILE7_LABEL_ON}"
                               supported_color_modes: !lambda "return std::string(id(tile7_supported_color_modes).state.c_str());"
+                              rgb_color: !lambda "return std::string(id(tile7_rgb_color).state.c_str());"
                               climate_current_temperature: !lambda "return id(tile7_climate_current_temperature).state;"
                               climate_target_temperature: !lambda "return id(tile7_climate_target_temperature).state;"
                               climate_humidity: !lambda "return id(tile7_climate_humidity).state;"
@@ -2633,6 +2688,7 @@ lvgl:
                               label_off: "${TILE8_LABEL_OFF}"
                               label_on: "${TILE8_LABEL_ON}"
                               supported_color_modes: !lambda "return std::string(id(tile8_supported_color_modes).state.c_str());"
+                              rgb_color: !lambda "return std::string(id(tile8_rgb_color).state.c_str());"
                               climate_current_temperature: !lambda "return id(tile8_climate_current_temperature).state;"
                               climate_target_temperature: !lambda "return id(tile8_climate_target_temperature).state;"
                               climate_humidity: !lambda "return id(tile8_climate_humidity).state;"
@@ -4371,6 +4427,7 @@ script:
       label_off: string
       label_on: string
       supported_color_modes: string
+      rgb_color: string
       climate_current_temperature: float
       climate_target_temperature: float
       climate_humidity: float
@@ -4529,6 +4586,39 @@ script:
           }
           lv_obj_set_style_radius(id(overlay_slider), 28, LV_PART_MAIN);
           lv_obj_set_style_radius(id(overlay_slider), 0, LV_PART_INDICATOR);
+
+          // HA reports rgb_color as a list, e.g. "[255, 254, 250]" (or "(255, 254, 250)"),
+          // and as "unknown"/empty while the light is off. Pull the first three
+          // integers out of whatever form arrives; 0 means "no usable colour".
+          auto parse_rgb = [](const std::string& text) -> uint32_t {
+            long v[3];
+            int n = 0;
+            const char *p = text.c_str();
+            while (*p != 0 && n < 3) {
+              if (*p >= '0' && *p <= '9') {
+                char *end = nullptr;
+                v[n++] = strtol(p, &end, 10);
+                p = end;
+              } else {
+                p++;
+              }
+            }
+            if (n < 3) return 0;
+            for (int i = 0; i < 3; i++) if (v[i] < 0 || v[i] > 255) return 0;
+            return ((uint32_t) v[0] << 16) | ((uint32_t) v[1] << 8) | (uint32_t) v[2];
+          };
+
+          // The filled part of the slider shows what the LED controller is actually
+          // putting out; fall back to the tile's configured colour when it is off.
+          if (tile_type == "light") {
+            uint32_t led = parse_rgb(rgb_color);
+            if (led != 0) {
+              lv_obj_set_style_bg_color(id(overlay_slider), lv_color_hex(led), LV_PART_INDICATOR);
+              lv_obj_set_style_bg_color(id(color_brightness_slider), lv_color_hex(led), LV_PART_INDICATOR);
+            } else {
+              lv_obj_set_style_bg_color(id(color_brightness_slider), lv_color_hex(slider_fill_color), LV_PART_INDICATOR);
+            }
+          }
 
           lv_label_set_text(id(overlay_title), title.c_str());
           lv_label_set_text(id(overlay_icon), icon_text.c_str());
@@ -4777,6 +4867,28 @@ script:
               if (mode == "fan_only") return std::string("Fan");
               return mode.empty() ? std::string("Auto") : mode;
             };
+            // Re-tint the open overlay's sliders when the light's colour changes in HA.
+            auto sync_open_rgb = [&](const std::string& entity, const std::string& rgb) {
+              if (id(active_entity) != entity) return;
+              long v[3];
+              int n = 0;
+              const char *p = rgb.c_str();
+              while (*p != 0 && n < 3) {
+                if (*p >= '0' && *p <= '9') {
+                  char *end = nullptr;
+                  v[n++] = strtol(p, &end, 10);
+                  p = end;
+                } else {
+                  p++;
+                }
+              }
+              if (n < 3) return;
+              for (int i = 0; i < 3; i++) if (v[i] < 0 || v[i] > 255) return;
+              uint32_t led = ((uint32_t) v[0] << 16) | ((uint32_t) v[1] << 8) | (uint32_t) v[2];
+              if (led == 0) return;
+              lv_obj_set_style_bg_color(id(overlay_slider), lv_color_hex(led), LV_PART_INDICATOR);
+              lv_obj_set_style_bg_color(id(color_brightness_slider), lv_color_hex(led), LV_PART_INDICATOR);
+            };
             auto sync_open_climate = [&](const std::string& entity,
                                          float current_temperature,
                                          float target_temperature,
@@ -4822,13 +4934,21 @@ script:
             };
 
             if (std::string("${TILE1_TYPE}") == "climate") sync_open_climate("${TILE1_ENTITY}", id(tile1_climate_current_temperature).state, id(tile1_climate_target_temperature).state, id(tile1_climate_humidity).state, std::string(id(tile1_climate_mode).state.c_str()));
+            if (std::string("${TILE1_TYPE}") == "light") sync_open_rgb("${TILE1_ENTITY}", std::string(id(tile1_rgb_color).state.c_str()));
             if (std::string("${TILE2_TYPE}") == "climate") sync_open_climate("${TILE2_ENTITY}", id(tile2_climate_current_temperature).state, id(tile2_climate_target_temperature).state, id(tile2_climate_humidity).state, std::string(id(tile2_climate_mode).state.c_str()));
+            if (std::string("${TILE2_TYPE}") == "light") sync_open_rgb("${TILE2_ENTITY}", std::string(id(tile2_rgb_color).state.c_str()));
             if (std::string("${TILE3_TYPE}") == "climate") sync_open_climate("${TILE3_ENTITY}", id(tile3_climate_current_temperature).state, id(tile3_climate_target_temperature).state, id(tile3_climate_humidity).state, std::string(id(tile3_climate_mode).state.c_str()));
+            if (std::string("${TILE3_TYPE}") == "light") sync_open_rgb("${TILE3_ENTITY}", std::string(id(tile3_rgb_color).state.c_str()));
             if (std::string("${TILE4_TYPE}") == "climate") sync_open_climate("${TILE4_ENTITY}", id(tile4_climate_current_temperature).state, id(tile4_climate_target_temperature).state, id(tile4_climate_humidity).state, std::string(id(tile4_climate_mode).state.c_str()));
+            if (std::string("${TILE4_TYPE}") == "light") sync_open_rgb("${TILE4_ENTITY}", std::string(id(tile4_rgb_color).state.c_str()));
             if (std::string("${TILE5_TYPE}") == "climate") sync_open_climate("${TILE5_ENTITY}", id(tile5_climate_current_temperature).state, id(tile5_climate_target_temperature).state, id(tile5_climate_humidity).state, std::string(id(tile5_climate_mode).state.c_str()));
+            if (std::string("${TILE5_TYPE}") == "light") sync_open_rgb("${TILE5_ENTITY}", std::string(id(tile5_rgb_color).state.c_str()));
             if (std::string("${TILE6_TYPE}") == "climate") sync_open_climate("${TILE6_ENTITY}", id(tile6_climate_current_temperature).state, id(tile6_climate_target_temperature).state, id(tile6_climate_humidity).state, std::string(id(tile6_climate_mode).state.c_str()));
+            if (std::string("${TILE6_TYPE}") == "light") sync_open_rgb("${TILE6_ENTITY}", std::string(id(tile6_rgb_color).state.c_str()));
             if (std::string("${TILE7_TYPE}") == "climate") sync_open_climate("${TILE7_ENTITY}", id(tile7_climate_current_temperature).state, id(tile7_climate_target_temperature).state, id(tile7_climate_humidity).state, std::string(id(tile7_climate_mode).state.c_str()));
+            if (std::string("${TILE7_TYPE}") == "light") sync_open_rgb("${TILE7_ENTITY}", std::string(id(tile7_rgb_color).state.c_str()));
             if (std::string("${TILE8_TYPE}") == "climate") sync_open_climate("${TILE8_ENTITY}", id(tile8_climate_current_temperature).state, id(tile8_climate_target_temperature).state, id(tile8_climate_humidity).state, std::string(id(tile8_climate_mode).state.c_str()));
+            if (std::string("${TILE8_TYPE}") == "light") sync_open_rgb("${TILE8_ENTITY}", std::string(id(tile8_rgb_color).state.c_str()));
           }
 
           {
