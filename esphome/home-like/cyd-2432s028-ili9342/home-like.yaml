@@ -1599,7 +1599,6 @@ display:
     # It differs from the generic ILI9342 model only in its gamma tables.
     # Do NOT add a display transform — rotation is handled by LVGL.
     model: ESP32-2432S028-9342
-    invert_colors: false
     # Neither the ILI9342 chip model nor this board model sets color_order, so
     # both inherit mipi_spi's BGR default — which on this panel draws red as
     # blue (greens look nearly unchanged, which is why it is easy to miss).
