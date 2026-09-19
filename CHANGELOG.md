@@ -5,6 +5,13 @@ Pure documentation and README updates are not included.
 
 ---
 
+## 2026-09-18
+
+### Added
+- The brightness sliders in the long-press overlay and the colour detail view are now tinted with the colour the light is actually reporting, for both home-like variants. Each tile subscribes to its entity's `rgb_color`, and the tint follows Home Assistant while the overlay stays open, so tapping a preset colour updates the slider at once. A light that is off reports no colour, and the slider then falls back to the tile's configured colour rather than going black.
+
+---
+
 ## 2026-06-21
 
 ### Fixed
