@@ -504,17 +504,40 @@ substitutions:
   # This file is laid out for LANDSCAPE with 8 tiles in a 4x2 grid. Portrait
   # (240x320) would only fit 2 columns, so it would need a different grid and
   # is not offered here — see ../jc3248w535/home-like.yaml for a portrait 2x4.
-  # Uncomment ONE preset block below, comment out the other.
   #
   # LVGL_ROTATION (0/90/180/270) drives the rotation — LVGL rotates both the
-  # display output and the touch coordinates (ESPHome 2026.4+). DISPLAY_W/H are
-  # the *logical* (post-rotation) canvas size used by the tile layout below;
-  # the physical panel is always driven at its native 320x240 (see display:).
+  # display output and the touch coordinates (ESPHome 2026.4+). The physical
+  # panel is always driven at its native 320x240 (see display:).
   #
-  # This panel is natively LANDSCAPE, and its native top edge faces the USB side,
-  # so LVGL_ROTATION = ORIENTATION + 180 here (the ILI9341 config uses
-  # ORIENTATION + 90). ORIENTATION names where the USB connector points.
-  #
+  # This panel is natively LANDSCAPE and its native top edge faces the USB side,
+  # so LVGL_ROTATION = ORIENTATION + 180 here, where the ILI9341 config uses
+  # ORIENTATION + 90. ORIENTATION only names where the USB connector points; it
+  # is a label, nothing reads it.
+  # ============================================================
+
+  # ----- rotation -----
+  # The only two values that change with orientation, because both landscape
+  # presets are the same shape — the canvas, touch and grid below are identical
+  # either way. Flip the panel by swapping these two lines:
+  #   USB on the left  (in use):  ORIENTATION "180", LVGL_ROTATION "0"
+  #   USB on the right:           ORIENTATION "0",   LVGL_ROTATION "180"
+  ORIENTATION: "180"
+  LVGL_ROTATION: "0"
+
+  # ----- touch -----
+  # A fixed correction for the panel's native landscape frame, NOT a
+  # per-orientation rotation: LVGL rotates touch coordinates itself. The
+  # calibration values are device-specific — retune them, not the transform,
+  # if taps are offset rather than rotated.
+  TOUCH_SWAP_XY: "true"
+  TOUCH_MIRROR_X: "true"
+  TOUCH_MIRROR_Y: "true"
+  TOUCH_CAL_X_MIN: "340"
+  TOUCH_CAL_X_MAX: "3860"
+  TOUCH_CAL_Y_MIN: "280"
+  TOUCH_CAL_Y_MAX: "3860"
+
+  # ----- canvas and tile grid -----
   # Grid arithmetic (320x240, 8 tiles):
   #   columns  9 / 86 / 163 / 240, TILE_W 70  -> 4*70 + 3*7 gutters + 9/10 margins
   #   rows    46 / 140,            TILE_H 86  -> 2*86 + 8 gutter, 14px clear of
@@ -523,20 +546,8 @@ substitutions:
   #   icon circle on top, then the title and value stacked underneath.
   #   Tile order is 1 2 3 4 across the top row, 5 6 7 8 across the bottom.
   #   Titles get ~54px of width — keep them to about 8 characters.
-  # ============================================================
-
-  # ----- 180° — Landscape flipped 320x240 (USB on left, in use) -----
-  ORIENTATION: "180"
   DISPLAY_W: "320"
   DISPLAY_H: "240"
-  LVGL_ROTATION: "0"
-  TOUCH_SWAP_XY: "true"
-  TOUCH_MIRROR_X: "true"
-  TOUCH_MIRROR_Y: "true"
-  TOUCH_CAL_X_MIN: "340"
-  TOUCH_CAL_X_MAX: "3860"
-  TOUCH_CAL_Y_MIN: "280"
-  TOUCH_CAL_Y_MAX: "3860"
   GRID_COL1_X: "9"
   GRID_COL2_X: "86"
   GRID_COL3_X: "163"
@@ -555,37 +566,6 @@ substitutions:
   TILE_TITLE_Y: "38"
   TILE_VALUE_X: "0"
   TILE_VALUE_Y: "54"
-
-  # ----- 0° — Landscape 320x240 (USB on right) -----
-  # ORIENTATION: "0"
-  # DISPLAY_W: "320"
-  # DISPLAY_H: "240"
-  # LVGL_ROTATION: "180"
-  # TOUCH_SWAP_XY: "true"
-  # TOUCH_MIRROR_X: "true"
-  # TOUCH_MIRROR_Y: "true"
-  # TOUCH_CAL_X_MIN: "340"
-  # TOUCH_CAL_X_MAX: "3860"
-  # TOUCH_CAL_Y_MIN: "280"
-  # TOUCH_CAL_Y_MAX: "3860"
-  # GRID_COL1_X: "9"
-  # GRID_COL2_X: "86"
-  # GRID_COL3_X: "163"
-  # GRID_COL4_X: "240"
-  # GRID_ROW1_Y: "46"
-  # GRID_ROW2_Y: "140"
-  # TILE_W: "70"
-  # TILE_H: "86"
-  # HEADER_Y: "14"
-  # OVERLAY_SLIDER_W: "96"
-  # OVERLAY_SLIDER_H: "160"
-  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background.png"
-  # TILE_ICON_X: "9"
-  # TILE_ICON_Y: "0"
-  # TILE_TITLE_X: "0"
-  # TILE_TITLE_Y: "38"
-  # TILE_VALUE_X: "0"
-  # TILE_VALUE_Y: "54"
 
 # ============================================================
 # No need to edit below this line.
@@ -1577,12 +1557,13 @@ light:
 # - Since ESPHome 2026.4 LVGL manages rotation (see `rotation:` in the lvgl
 #   block) and rotates touch coordinates automatically. The transform below is
 #   therefore NOT a per-orientation rotation — it only corrects the raw XPT2046
-#   axis orientation against the panel's native (landscape) frame. swap_xy is the
-#   same for every preset, but on this panel the two PORTRAIT presets (90/270)
-#   need both mirrors OFF while the LANDSCAPE presets (0/180) need both ON —
-#   verified on hardware: with mirrors on in portrait, taps landed 180° rotated.
-#   These values differ from the ILI9341 config (swap_xy false / mirror_x true /
-#   mirror_y false) because that panel's native frame is portrait.
+#   axis orientation against the panel's native (landscape) frame, and is the
+#   same for both landscape presets.
+# - These values differ from the ILI9341 config (swap_xy false / mirror_x true /
+#   mirror_y false) because that panel's native frame is portrait. A portrait
+#   preset on THIS panel would need both mirrors off, verified on hardware, but
+#   this file is landscape-only — the full four-preset table is in CLAUDE.md
+#   and in upstream PR #26.
 touchscreen:
   platform: xpt2046
   id: ts_touch
@@ -1607,7 +1588,7 @@ touchscreen:
     - lambda: |-
         id(last_touch_ms) = millis();
 
-# Display configuration (ILI9341)
+# Display configuration (ILI9342 — see the model note below)
 display:
   - platform: mipi_spi
     id: my_display
