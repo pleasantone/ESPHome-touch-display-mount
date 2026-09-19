@@ -29,16 +29,23 @@ All against `akuehlewind/ESPHome-touch-display-mount`, each on its own branch pu
 
 Each adds a `## 2026-09-17` CHANGELOG section, so those hunks conflict with one another; every PR body says so. **The secret renames were deliberately excluded** — all five PRs still use upstream's `smartdisplay_api_key` and `wifi_ap_password`. If a PR needs reworking, rebuild the branch the same way rather than editing files in the main tree.
 
-### Queued for upstream (branches not built yet)
+### Branches built, PRs not opened yet
 
-Decided 2026-09-18: four changes developed in `cyd-2432s028-ili9342/` are generic and should be offered upstream, but that file itself never goes upstream — each has to be **ported into the published variants** on its own branch off `origin/main`, the way #26–#30 were built. In rough order of how clearly they are bug fixes:
+Built 2026-09-18 from `origin/main` in throwaway worktrees and validated with `esphome config` on **both** published home-like variants before pushing to `fork`. Each ports a change developed in `cyd-2432s028-ili9342/`, since that file itself never goes upstream. None has a PR yet.
 
-1. `color_order: RGB` for the ILI9342 — also belongs in PR #26, which has the bug.
-2. The `confirm_off` tap action and its dialog — opt-in; inert unless a tile sets it.
-3. Brightness sliders tinted from the light's live `rgb_color`.
-4. The palette rework: 3×2 swatch grid with runtime sizing, and swatch colours that match what `color_name` actually sets.
+| branch | what |
+|--------|------|
+| `confirm-off-action` | `TILE*_TAP_ACTION: confirm_off` — dialog on switch-off only, plus a `TILE_CONFIGURATION.md` row. Deliberately **not** the local implementation: the dialog's OK button re-enters `do_tile_action` as a `toggle` instead of calling `switch.turn_off`, so lights, fans and covers work too, and the card is sized in percentages to fit portrait as well. Worth backporting that shape to the two local configs. |
+| `slider-live-colour` | brightness sliders tinted from each light's `rgb_color`, with a `sync_open_rgb` helper keeping them current while an overlay is open |
+| `colour-swatch-palette` | swatch colours matched to what `color_name` actually sets, plus the 3×2 grid sized at runtime (~47px, was 30px) with the brightness slider moved to the bottom edge |
 
-Also to file: an ESPHome issue for the `ILI9342` model's missing `color_order` (see the hardware note below) — the real bug is upstream of this repo.
+`ili9342-variant` (PR #26) also gained a third commit adding `color_order: RGB`, pushed as a fast-forward to the open PR.
+
+Each of the three new branches adds its own `## 2026-09-18` CHANGELOG section, so those hunks conflict with one another exactly as #26–#30's do — say so in every PR body.
+
+Still to file: an ESPHome issue for the `ILI9342` model's missing `color_order` (draft written 2026-09-18; the suggested fix is a board-level override on `ESP32-2432S028-9342` in `models/cyd.py`, not the generic chip, since the M5Stack Core's ILI9342C is usually driven BGR and only one board was tested).
+
+Validating an upstream config locally needs two things the repo gitignores: a `secrets.yaml` with the **upstream** names (`smartdisplay_api_key`, `wifi_ap_password`, `ota_password` — not the local ones), and `fonts`/`images` symlinks, because the published configs still read assets from disk until PR #29 lands.
 
 ## Commands
 
