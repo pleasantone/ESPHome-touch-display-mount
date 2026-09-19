@@ -547,9 +547,10 @@ substitutions:
   # its native 320x240 (see display:). ORIENTATION only names where the USB
   # connector points — it is a label, nothing reads it.
   #
-  # Each tile carries its own GRID_Tn_X / GRID_Tn_Y, so the two orientations can
-  # use different grid shapes: 4x2 across in landscape, 2x4 down in portrait.
-  # Tile order stays reading order either way, 1..8 left to right, top to bottom.
+  # The tiles are placed by LVGL's flex engine inside a container, so an
+  # orientation block sets the container's box and the tile size and the grid
+  # shape follows: 4x2 across in landscape, 2x4 down in portrait. Tiles flow in
+  # creation order, which is reading order, 1..8 left to right, top to bottom.
   # ============================================================
 
   # ----- PORTRAIT 240x320, 2x4 grid (USB at bottom) -----
@@ -566,22 +567,12 @@ substitutions:
   TOUCH_MIRROR_Y: "false"
   DISPLAY_W: "240"
   DISPLAY_H: "320"
-  GRID_T1_X: "6"
-  GRID_T1_Y: "46"
-  GRID_T2_X: "124"
-  GRID_T2_Y: "46"
-  GRID_T3_X: "6"
-  GRID_T3_Y: "113"
-  GRID_T4_X: "124"
-  GRID_T4_Y: "113"
-  GRID_T5_X: "6"
-  GRID_T5_Y: "180"
-  GRID_T6_X: "124"
-  GRID_T6_Y: "180"
-  GRID_T7_X: "6"
-  GRID_T7_Y: "247"
-  GRID_T8_X: "124"
-  GRID_T8_Y: "247"
+  GRID_X: "6"
+  GRID_Y: "46"
+  GRID_W: "228"
+  GRID_H: "260"
+  GRID_GAP_X: "8"
+  GRID_GAP_Y: "8"
   TILE_W: "110"
   TILE_H: "59"
   HEADER_Y: "14"
@@ -607,22 +598,12 @@ substitutions:
   # TOUCH_MIRROR_Y: "true"
   # DISPLAY_W: "320"
   # DISPLAY_H: "240"
-  # GRID_T1_X: "9"
-  # GRID_T1_Y: "46"
-  # GRID_T2_X: "86"
-  # GRID_T2_Y: "46"
-  # GRID_T3_X: "163"
-  # GRID_T3_Y: "46"
-  # GRID_T4_X: "240"
-  # GRID_T4_Y: "46"
-  # GRID_T5_X: "9"
-  # GRID_T5_Y: "140"
-  # GRID_T6_X: "86"
-  # GRID_T6_Y: "140"
-  # GRID_T7_X: "163"
-  # GRID_T7_Y: "140"
-  # GRID_T8_X: "240"
-  # GRID_T8_Y: "140"
+  # GRID_X: "9"
+  # GRID_Y: "46"
+  # GRID_W: "301"
+  # GRID_H: "180"
+  # GRID_GAP_X: "7"
+  # GRID_GAP_Y: "8"
   # TILE_W: "70"
   # TILE_H: "86"
   # HEADER_Y: "14"
@@ -1863,885 +1844,892 @@ lvgl:
             text: ""
             styles: style_time
 
-        # ---------- TILE 1 ----------
+        # The eight tiles are laid out by LVGL's flex engine rather than by
+        # absolute coordinates: they flow in creation order and wrap when the
+        # next one no longer fits, so changing shape is a matter of this
+        # container's box and the tile size, with no per-tile positions to keep
+        # in step.
         - obj:
-            id: tile1
-            x: ${GRID_T1_X}
-            y: ${GRID_T1_Y}
-            width: ${TILE_W}
-            height: ${TILE_H}
-            styles: style_tile
+            id: tile_grid
+            x: ${GRID_X}
+            y: ${GRID_Y}
+            width: ${GRID_W}
+            height: ${GRID_H}
+            bg_opa: TRANSP
+            border_width: 0
+            pad_all: 0
+            clickable: false
             scrollable: false
             scrollbar_mode: 'OFF'
+            layout:
+              type: flex
+              flex_flow: row_wrap
+              pad_row: ${GRID_GAP_Y}
+              pad_column: ${GRID_GAP_X}
             widgets:
+              # ---------- TILE 1 ----------
               - obj:
-                  id: tile1_icon_circle
-                  x: ${TILE_ICON_X}
-                  y: ${TILE_ICON_Y}
-                  width: 36
-                  height: 36
-                  styles: style_icon_circle
-                  clickable: false
+                  id: tile1
+                  width: ${TILE_W}
+                  height: ${TILE_H}
+                  styles: style_tile
                   scrollable: false
                   scrollbar_mode: 'OFF'
                   widgets:
-                    - label:
-                        id: tile1_icon_lbl
-                        align: CENTER
-                        text_font: materialdesign_icons
-                        text_color: 0xFFFFFF
-                        text: "${TILE1_ICON}"
+                    - obj:
+                        id: tile1_icon_circle
+                        x: ${TILE_ICON_X}
+                        y: ${TILE_ICON_Y}
+                        width: 36
+                        height: 36
+                        styles: style_icon_circle
                         clickable: false
-              - label:
-                  id: t1_title
-                  x: ${TILE_TITLE_X}
-                  y: ${TILE_TITLE_Y}
-                  text: "${TILE1_TITLE}"
-                  styles: style_title
-                  clickable: false
-              - label:
-                  id: t1_value
-                  x: ${TILE_VALUE_X}
-                  y: ${TILE_VALUE_Y}
-                  text: "—"
-                  styles: style_value
-                  clickable: false
-            on_short_click:
-              - script.execute: { id: publish_action, action: "tile1_press" }
-              - script.execute:
-                  id: do_tile_action
-                  tile_type: "${TILE1_TYPE}"
-                  tap_action: "${TILE1_TAP_ACTION}"
-                  service: "${TILE1_TAP_SERVICE}"
-                  entity_id: "${TILE1_ENTITY}"
-                  param_key: "${TILE1_TAP_PARAM_KEY}"
-                  param_val: "${TILE1_TAP_PARAM_VAL}"
-                  was_on: !lambda |-
-                    if (std::string("${TILE1_TYPE}") == "cover")
-                      return id(tile1_cover_state).state != "closed";
-                    return std::string(id(ha_state_tile1).state.c_str()) == "on";
-            on_long_press:
-              - script.execute: { id: publish_action, action: "tile1_long_press" }
-              - if:
-                  condition:
-                    lambda: "return std::string(\"${TILE1_LONGPRESS}\") == \"action\";"
-                  then:
+                        scrollable: false
+                        scrollbar_mode: 'OFF'
+                        widgets:
+                          - label:
+                              id: tile1_icon_lbl
+                              align: CENTER
+                              text_font: materialdesign_icons
+                              text_color: 0xFFFFFF
+                              text: "${TILE1_ICON}"
+                              clickable: false
+                    - label:
+                        id: t1_title
+                        x: ${TILE_TITLE_X}
+                        y: ${TILE_TITLE_Y}
+                        text: "${TILE1_TITLE}"
+                        styles: style_title
+                        clickable: false
+                    - label:
+                        id: t1_value
+                        x: ${TILE_VALUE_X}
+                        y: ${TILE_VALUE_Y}
+                        text: "—"
+                        styles: style_value
+                        clickable: false
+                  on_short_click:
+                    - script.execute: { id: publish_action, action: "tile1_press" }
                     - script.execute:
                         id: do_tile_action
-                        tile_type: !lambda |-
-                          std::string t = "${TILE1_LONGPRESS_ACTION_TYPE}";
-                          return t.empty() ? std::string("${TILE1_TYPE}") : t;
-                        tap_action: "activate"
-                        service: "${TILE1_LONGPRESS_ACTION_SERVICE}"
-                        entity_id: "${TILE1_LONGPRESS_ACTION}"
-                        param_key: ""
-                        param_val: ""
-                        was_on: false
-                  else:
+                        tile_type: "${TILE1_TYPE}"
+                        tap_action: "${TILE1_TAP_ACTION}"
+                        service: "${TILE1_TAP_SERVICE}"
+                        entity_id: "${TILE1_ENTITY}"
+                        param_key: "${TILE1_TAP_PARAM_KEY}"
+                        param_val: "${TILE1_TAP_PARAM_VAL}"
+                        was_on: !lambda |-
+                          if (std::string("${TILE1_TYPE}") == "cover")
+                            return id(tile1_cover_state).state != "closed";
+                          return std::string(id(ha_state_tile1).state.c_str()) == "on";
+                  on_long_press:
+                    - script.execute: { id: publish_action, action: "tile1_long_press" }
                     - if:
                         condition:
-                          lambda: "return std::string(\"${TILE1_LONGPRESS}\") == \"slider\";"
+                          lambda: "return std::string(\"${TILE1_LONGPRESS}\") == \"action\";"
                         then:
                           - script.execute:
-                              id: open_value_overlay
-                              title: "${TILE1_TITLE}"
-                              entity: "${TILE1_ENTITY}"
-                              tile_type: "${TILE1_TYPE}"
-                              longpress_mode: "${TILE1_LONGPRESS_SLIDER}"
-                              was_on: !lambda |-
-                                if (std::string("${TILE1_TYPE}") == "cover")
-                                  return id(tile1_cover_state).state != "closed";
-                                return std::string(id(ha_state_tile1).state.c_str()) == "on";
-                              off_value: !lambda "return atoi(\"${TILE1_LONGPRESS_OFF_VALUE}\");"
-                              brightness_value: !lambda "return id(tile1_brightness).state;"
-                              percentage_value: !lambda "return id(tile1_percentage).state;"
-                              position_value: !lambda "return id(tile1_cover_position).state;"
-                              icon_text: "${TILE1_ICON}"
-                              slider_bg_color: ${TILE1_BG_DISABLED_COLOR}
-                              slider_fill_color: ${TILE1_CIRCLE_ACTIVE_COLOR}
-                              slider_icon_color: ${TILE1_ICON_ACTIVE_COLOR}
-                              label_off: "${TILE1_LABEL_OFF}"
-                              label_on: "${TILE1_LABEL_ON}"
-                              supported_color_modes: !lambda "return std::string(id(tile1_supported_color_modes).state.c_str());"
-                              rgb_color: !lambda "return std::string(id(tile1_rgb_color).state.c_str());"
-                              climate_current_temperature: !lambda "return id(tile1_climate_current_temperature).state;"
-                              climate_target_temperature: !lambda "return id(tile1_climate_target_temperature).state;"
-                              climate_humidity: !lambda "return id(tile1_climate_humidity).state;"
-                              climate_mode: !lambda "return std::string(id(tile1_climate_mode).state.c_str());"
-                              climate_supported_modes: !lambda "return std::string(id(tile1_climate_supported_modes).state.c_str());"
-                              climate_min_temp: "${TILE1_CLIMATE_MIN_TEMP}"
-                              climate_max_temp: "${TILE1_CLIMATE_MAX_TEMP}"
-                              climate_step: "${TILE1_CLIMATE_STEP}"
+                              id: do_tile_action
+                              tile_type: !lambda |-
+                                std::string t = "${TILE1_LONGPRESS_ACTION_TYPE}";
+                                return t.empty() ? std::string("${TILE1_TYPE}") : t;
+                              tap_action: "activate"
+                              service: "${TILE1_LONGPRESS_ACTION_SERVICE}"
+                              entity_id: "${TILE1_LONGPRESS_ACTION}"
+                              param_key: ""
+                              param_val: ""
+                              was_on: false
+                        else:
+                          - if:
+                              condition:
+                                lambda: "return std::string(\"${TILE1_LONGPRESS}\") == \"slider\";"
+                              then:
+                                - script.execute:
+                                    id: open_value_overlay
+                                    title: "${TILE1_TITLE}"
+                                    entity: "${TILE1_ENTITY}"
+                                    tile_type: "${TILE1_TYPE}"
+                                    longpress_mode: "${TILE1_LONGPRESS_SLIDER}"
+                                    was_on: !lambda |-
+                                      if (std::string("${TILE1_TYPE}") == "cover")
+                                        return id(tile1_cover_state).state != "closed";
+                                      return std::string(id(ha_state_tile1).state.c_str()) == "on";
+                                    off_value: !lambda "return atoi(\"${TILE1_LONGPRESS_OFF_VALUE}\");"
+                                    brightness_value: !lambda "return id(tile1_brightness).state;"
+                                    percentage_value: !lambda "return id(tile1_percentage).state;"
+                                    position_value: !lambda "return id(tile1_cover_position).state;"
+                                    icon_text: "${TILE1_ICON}"
+                                    slider_bg_color: ${TILE1_BG_DISABLED_COLOR}
+                                    slider_fill_color: ${TILE1_CIRCLE_ACTIVE_COLOR}
+                                    slider_icon_color: ${TILE1_ICON_ACTIVE_COLOR}
+                                    label_off: "${TILE1_LABEL_OFF}"
+                                    label_on: "${TILE1_LABEL_ON}"
+                                    supported_color_modes: !lambda "return std::string(id(tile1_supported_color_modes).state.c_str());"
+                                    rgb_color: !lambda "return std::string(id(tile1_rgb_color).state.c_str());"
+                                    climate_current_temperature: !lambda "return id(tile1_climate_current_temperature).state;"
+                                    climate_target_temperature: !lambda "return id(tile1_climate_target_temperature).state;"
+                                    climate_humidity: !lambda "return id(tile1_climate_humidity).state;"
+                                    climate_mode: !lambda "return std::string(id(tile1_climate_mode).state.c_str());"
+                                    climate_supported_modes: !lambda "return std::string(id(tile1_climate_supported_modes).state.c_str());"
+                                    climate_min_temp: "${TILE1_CLIMATE_MIN_TEMP}"
+                                    climate_max_temp: "${TILE1_CLIMATE_MAX_TEMP}"
+                                    climate_step: "${TILE1_CLIMATE_STEP}"
 
-        # ---------- TILE 2 ----------
-        - obj:
-            id: tile2
-            x: ${GRID_T2_X}
-            y: ${GRID_T2_Y}
-            width: ${TILE_W}
-            height: ${TILE_H}
-            styles: style_tile
-            scrollable: false
-            scrollbar_mode: 'OFF'
-            widgets:
+              # ---------- TILE 2 ----------
               - obj:
-                  id: tile2_icon_circle
-                  x: ${TILE_ICON_X}
-                  y: ${TILE_ICON_Y}
-                  width: 36
-                  height: 36
-                  styles: style_icon_circle
-                  clickable: false
+                  id: tile2
+                  width: ${TILE_W}
+                  height: ${TILE_H}
+                  styles: style_tile
                   scrollable: false
                   scrollbar_mode: 'OFF'
                   widgets:
-                    - label:
-                        id: tile2_icon_lbl
-                        align: CENTER
-                        text_font: materialdesign_icons
-                        text_color: 0xFFFFFF
-                        text: "${TILE2_ICON}"
+                    - obj:
+                        id: tile2_icon_circle
+                        x: ${TILE_ICON_X}
+                        y: ${TILE_ICON_Y}
+                        width: 36
+                        height: 36
+                        styles: style_icon_circle
                         clickable: false
-              - label:
-                  id: t2_title
-                  x: ${TILE_TITLE_X}
-                  y: ${TILE_TITLE_Y}
-                  text: "${TILE2_TITLE}"
-                  styles: style_title
-                  clickable: false
-              - label:
-                  id: t2_value
-                  x: ${TILE_VALUE_X}
-                  y: ${TILE_VALUE_Y}
-                  text: "—"
-                  styles: style_value
-                  clickable: false
-            on_short_click:
-              - script.execute: { id: publish_action, action: "tile2_press" }
-              - script.execute:
-                  id: do_tile_action
-                  tile_type: "${TILE2_TYPE}"
-                  tap_action: "${TILE2_TAP_ACTION}"
-                  service: "${TILE2_TAP_SERVICE}"
-                  entity_id: "${TILE2_ENTITY}"
-                  param_key: "${TILE2_TAP_PARAM_KEY}"
-                  param_val: "${TILE2_TAP_PARAM_VAL}"
-                  was_on: !lambda |-
-                    if (std::string("${TILE2_TYPE}") == "cover")
-                      return id(tile2_cover_state).state != "closed";
-                    return std::string(id(ha_state_tile2).state.c_str()) == "on";
-            on_long_press:
-              - script.execute: { id: publish_action, action: "tile2_long_press" }
-              - if:
-                  condition:
-                    lambda: "return std::string(\"${TILE2_LONGPRESS}\") == \"action\";"
-                  then:
+                        scrollable: false
+                        scrollbar_mode: 'OFF'
+                        widgets:
+                          - label:
+                              id: tile2_icon_lbl
+                              align: CENTER
+                              text_font: materialdesign_icons
+                              text_color: 0xFFFFFF
+                              text: "${TILE2_ICON}"
+                              clickable: false
+                    - label:
+                        id: t2_title
+                        x: ${TILE_TITLE_X}
+                        y: ${TILE_TITLE_Y}
+                        text: "${TILE2_TITLE}"
+                        styles: style_title
+                        clickable: false
+                    - label:
+                        id: t2_value
+                        x: ${TILE_VALUE_X}
+                        y: ${TILE_VALUE_Y}
+                        text: "—"
+                        styles: style_value
+                        clickable: false
+                  on_short_click:
+                    - script.execute: { id: publish_action, action: "tile2_press" }
                     - script.execute:
                         id: do_tile_action
-                        tile_type: !lambda |-
-                          std::string t = "${TILE2_LONGPRESS_ACTION_TYPE}";
-                          return t.empty() ? std::string("${TILE2_TYPE}") : t;
-                        tap_action: "activate"
-                        service: "${TILE2_LONGPRESS_ACTION_SERVICE}"
-                        entity_id: "${TILE2_LONGPRESS_ACTION}"
-                        param_key: ""
-                        param_val: ""
-                        was_on: false
-                  else:
+                        tile_type: "${TILE2_TYPE}"
+                        tap_action: "${TILE2_TAP_ACTION}"
+                        service: "${TILE2_TAP_SERVICE}"
+                        entity_id: "${TILE2_ENTITY}"
+                        param_key: "${TILE2_TAP_PARAM_KEY}"
+                        param_val: "${TILE2_TAP_PARAM_VAL}"
+                        was_on: !lambda |-
+                          if (std::string("${TILE2_TYPE}") == "cover")
+                            return id(tile2_cover_state).state != "closed";
+                          return std::string(id(ha_state_tile2).state.c_str()) == "on";
+                  on_long_press:
+                    - script.execute: { id: publish_action, action: "tile2_long_press" }
                     - if:
                         condition:
-                          lambda: "return std::string(\"${TILE2_LONGPRESS}\") == \"slider\";"
+                          lambda: "return std::string(\"${TILE2_LONGPRESS}\") == \"action\";"
                         then:
                           - script.execute:
-                              id: open_value_overlay
-                              title: "${TILE2_TITLE}"
-                              entity: "${TILE2_ENTITY}"
-                              tile_type: "${TILE2_TYPE}"
-                              longpress_mode: "${TILE2_LONGPRESS_SLIDER}"
-                              was_on: !lambda |-
-                                if (std::string("${TILE2_TYPE}") == "cover")
-                                  return id(tile2_cover_state).state != "closed";
-                                return std::string(id(ha_state_tile2).state.c_str()) == "on";
-                              off_value: !lambda "return atoi(\"${TILE2_LONGPRESS_OFF_VALUE}\");"
-                              brightness_value: !lambda "return id(tile2_brightness).state;"
-                              percentage_value: !lambda "return id(tile2_percentage).state;"
-                              position_value: !lambda "return id(tile2_cover_position).state;"
-                              icon_text: "${TILE2_ICON}"
-                              slider_bg_color: ${TILE2_BG_DISABLED_COLOR}
-                              slider_fill_color: ${TILE2_CIRCLE_ACTIVE_COLOR}
-                              slider_icon_color: ${TILE2_ICON_ACTIVE_COLOR}
-                              label_off: "${TILE2_LABEL_OFF}"
-                              label_on: "${TILE2_LABEL_ON}"
-                              supported_color_modes: !lambda "return std::string(id(tile2_supported_color_modes).state.c_str());"
-                              rgb_color: !lambda "return std::string(id(tile2_rgb_color).state.c_str());"
-                              climate_current_temperature: !lambda "return id(tile2_climate_current_temperature).state;"
-                              climate_target_temperature: !lambda "return id(tile2_climate_target_temperature).state;"
-                              climate_humidity: !lambda "return id(tile2_climate_humidity).state;"
-                              climate_mode: !lambda "return std::string(id(tile2_climate_mode).state.c_str());"
-                              climate_supported_modes: !lambda "return std::string(id(tile2_climate_supported_modes).state.c_str());"
-                              climate_min_temp: "${TILE2_CLIMATE_MIN_TEMP}"
-                              climate_max_temp: "${TILE2_CLIMATE_MAX_TEMP}"
-                              climate_step: "${TILE2_CLIMATE_STEP}"
+                              id: do_tile_action
+                              tile_type: !lambda |-
+                                std::string t = "${TILE2_LONGPRESS_ACTION_TYPE}";
+                                return t.empty() ? std::string("${TILE2_TYPE}") : t;
+                              tap_action: "activate"
+                              service: "${TILE2_LONGPRESS_ACTION_SERVICE}"
+                              entity_id: "${TILE2_LONGPRESS_ACTION}"
+                              param_key: ""
+                              param_val: ""
+                              was_on: false
+                        else:
+                          - if:
+                              condition:
+                                lambda: "return std::string(\"${TILE2_LONGPRESS}\") == \"slider\";"
+                              then:
+                                - script.execute:
+                                    id: open_value_overlay
+                                    title: "${TILE2_TITLE}"
+                                    entity: "${TILE2_ENTITY}"
+                                    tile_type: "${TILE2_TYPE}"
+                                    longpress_mode: "${TILE2_LONGPRESS_SLIDER}"
+                                    was_on: !lambda |-
+                                      if (std::string("${TILE2_TYPE}") == "cover")
+                                        return id(tile2_cover_state).state != "closed";
+                                      return std::string(id(ha_state_tile2).state.c_str()) == "on";
+                                    off_value: !lambda "return atoi(\"${TILE2_LONGPRESS_OFF_VALUE}\");"
+                                    brightness_value: !lambda "return id(tile2_brightness).state;"
+                                    percentage_value: !lambda "return id(tile2_percentage).state;"
+                                    position_value: !lambda "return id(tile2_cover_position).state;"
+                                    icon_text: "${TILE2_ICON}"
+                                    slider_bg_color: ${TILE2_BG_DISABLED_COLOR}
+                                    slider_fill_color: ${TILE2_CIRCLE_ACTIVE_COLOR}
+                                    slider_icon_color: ${TILE2_ICON_ACTIVE_COLOR}
+                                    label_off: "${TILE2_LABEL_OFF}"
+                                    label_on: "${TILE2_LABEL_ON}"
+                                    supported_color_modes: !lambda "return std::string(id(tile2_supported_color_modes).state.c_str());"
+                                    rgb_color: !lambda "return std::string(id(tile2_rgb_color).state.c_str());"
+                                    climate_current_temperature: !lambda "return id(tile2_climate_current_temperature).state;"
+                                    climate_target_temperature: !lambda "return id(tile2_climate_target_temperature).state;"
+                                    climate_humidity: !lambda "return id(tile2_climate_humidity).state;"
+                                    climate_mode: !lambda "return std::string(id(tile2_climate_mode).state.c_str());"
+                                    climate_supported_modes: !lambda "return std::string(id(tile2_climate_supported_modes).state.c_str());"
+                                    climate_min_temp: "${TILE2_CLIMATE_MIN_TEMP}"
+                                    climate_max_temp: "${TILE2_CLIMATE_MAX_TEMP}"
+                                    climate_step: "${TILE2_CLIMATE_STEP}"
 
-        # ---------- TILE 3 ----------
-        - obj:
-            id: tile3
-            x: ${GRID_T3_X}
-            y: ${GRID_T3_Y}
-            width: ${TILE_W}
-            height: ${TILE_H}
-            styles: style_tile
-            scrollable: false
-            scrollbar_mode: 'OFF'
-            widgets:
+              # ---------- TILE 3 ----------
               - obj:
-                  id: tile3_icon_circle
-                  x: ${TILE_ICON_X}
-                  y: ${TILE_ICON_Y}
-                  width: 36
-                  height: 36
-                  styles: style_icon_circle
-                  clickable: false
+                  id: tile3
+                  width: ${TILE_W}
+                  height: ${TILE_H}
+                  styles: style_tile
                   scrollable: false
                   scrollbar_mode: 'OFF'
                   widgets:
-                    - label:
-                        id: tile3_icon_lbl
-                        align: CENTER
-                        text_font: materialdesign_icons
-                        text_color: 0xFFFFFF
-                        text: "${TILE3_ICON}"
+                    - obj:
+                        id: tile3_icon_circle
+                        x: ${TILE_ICON_X}
+                        y: ${TILE_ICON_Y}
+                        width: 36
+                        height: 36
+                        styles: style_icon_circle
                         clickable: false
-              - label:
-                  id: t3_title
-                  x: ${TILE_TITLE_X}
-                  y: ${TILE_TITLE_Y}
-                  text: "${TILE3_TITLE}"
-                  styles: style_title
-                  clickable: false
-              - label:
-                  id: t3_value
-                  x: ${TILE_VALUE_X}
-                  y: ${TILE_VALUE_Y}
-                  text: "—"
-                  styles: style_value
-                  clickable: false
-            on_short_click:
-              - script.execute: { id: publish_action, action: "tile3_press" }
-              - script.execute:
-                  id: do_tile_action
-                  tile_type: "${TILE3_TYPE}"
-                  tap_action: "${TILE3_TAP_ACTION}"
-                  service: "${TILE3_TAP_SERVICE}"
-                  entity_id: "${TILE3_ENTITY}"
-                  param_key: "${TILE3_TAP_PARAM_KEY}"
-                  param_val: "${TILE3_TAP_PARAM_VAL}"
-                  was_on: !lambda |-
-                    if (std::string("${TILE3_TYPE}") == "cover")
-                      return id(tile3_cover_state).state != "closed";
-                    return std::string(id(ha_state_tile3).state.c_str()) == "on";
-            on_long_press:
-              - script.execute: { id: publish_action, action: "tile3_long_press" }
-              - if:
-                  condition:
-                    lambda: "return std::string(\"${TILE3_LONGPRESS}\") == \"action\";"
-                  then:
+                        scrollable: false
+                        scrollbar_mode: 'OFF'
+                        widgets:
+                          - label:
+                              id: tile3_icon_lbl
+                              align: CENTER
+                              text_font: materialdesign_icons
+                              text_color: 0xFFFFFF
+                              text: "${TILE3_ICON}"
+                              clickable: false
+                    - label:
+                        id: t3_title
+                        x: ${TILE_TITLE_X}
+                        y: ${TILE_TITLE_Y}
+                        text: "${TILE3_TITLE}"
+                        styles: style_title
+                        clickable: false
+                    - label:
+                        id: t3_value
+                        x: ${TILE_VALUE_X}
+                        y: ${TILE_VALUE_Y}
+                        text: "—"
+                        styles: style_value
+                        clickable: false
+                  on_short_click:
+                    - script.execute: { id: publish_action, action: "tile3_press" }
                     - script.execute:
                         id: do_tile_action
-                        tile_type: !lambda |-
-                          std::string t = "${TILE3_LONGPRESS_ACTION_TYPE}";
-                          return t.empty() ? std::string("${TILE3_TYPE}") : t;
-                        tap_action: "activate"
-                        service: "${TILE3_LONGPRESS_ACTION_SERVICE}"
-                        entity_id: "${TILE3_LONGPRESS_ACTION}"
-                        param_key: ""
-                        param_val: ""
-                        was_on: false
-                  else:
+                        tile_type: "${TILE3_TYPE}"
+                        tap_action: "${TILE3_TAP_ACTION}"
+                        service: "${TILE3_TAP_SERVICE}"
+                        entity_id: "${TILE3_ENTITY}"
+                        param_key: "${TILE3_TAP_PARAM_KEY}"
+                        param_val: "${TILE3_TAP_PARAM_VAL}"
+                        was_on: !lambda |-
+                          if (std::string("${TILE3_TYPE}") == "cover")
+                            return id(tile3_cover_state).state != "closed";
+                          return std::string(id(ha_state_tile3).state.c_str()) == "on";
+                  on_long_press:
+                    - script.execute: { id: publish_action, action: "tile3_long_press" }
                     - if:
                         condition:
-                          lambda: "return std::string(\"${TILE3_LONGPRESS}\") == \"slider\";"
+                          lambda: "return std::string(\"${TILE3_LONGPRESS}\") == \"action\";"
                         then:
                           - script.execute:
-                              id: open_value_overlay
-                              title: "${TILE3_TITLE}"
-                              entity: "${TILE3_ENTITY}"
-                              tile_type: "${TILE3_TYPE}"
-                              longpress_mode: "${TILE3_LONGPRESS_SLIDER}"
-                              was_on: !lambda |-
-                                if (std::string("${TILE3_TYPE}") == "cover")
-                                  return id(tile3_cover_state).state != "closed";
-                                return std::string(id(ha_state_tile3).state.c_str()) == "on";
-                              off_value: !lambda "return atoi(\"${TILE3_LONGPRESS_OFF_VALUE}\");"
-                              brightness_value: !lambda "return id(tile3_brightness).state;"
-                              percentage_value: !lambda "return id(tile3_percentage).state;"
-                              position_value: !lambda "return id(tile3_cover_position).state;"
-                              icon_text: "${TILE3_ICON}"
-                              slider_bg_color: ${TILE3_BG_DISABLED_COLOR}
-                              slider_fill_color: ${TILE3_CIRCLE_ACTIVE_COLOR}
-                              slider_icon_color: ${TILE3_ICON_ACTIVE_COLOR}
-                              label_off: "${TILE3_LABEL_OFF}"
-                              label_on: "${TILE3_LABEL_ON}"
-                              supported_color_modes: !lambda "return std::string(id(tile3_supported_color_modes).state.c_str());"
-                              rgb_color: !lambda "return std::string(id(tile3_rgb_color).state.c_str());"
-                              climate_current_temperature: !lambda "return id(tile3_climate_current_temperature).state;"
-                              climate_target_temperature: !lambda "return id(tile3_climate_target_temperature).state;"
-                              climate_humidity: !lambda "return id(tile3_climate_humidity).state;"
-                              climate_mode: !lambda "return std::string(id(tile3_climate_mode).state.c_str());"
-                              climate_supported_modes: !lambda "return std::string(id(tile3_climate_supported_modes).state.c_str());"
-                              climate_min_temp: "${TILE3_CLIMATE_MIN_TEMP}"
-                              climate_max_temp: "${TILE3_CLIMATE_MAX_TEMP}"
-                              climate_step: "${TILE3_CLIMATE_STEP}"
+                              id: do_tile_action
+                              tile_type: !lambda |-
+                                std::string t = "${TILE3_LONGPRESS_ACTION_TYPE}";
+                                return t.empty() ? std::string("${TILE3_TYPE}") : t;
+                              tap_action: "activate"
+                              service: "${TILE3_LONGPRESS_ACTION_SERVICE}"
+                              entity_id: "${TILE3_LONGPRESS_ACTION}"
+                              param_key: ""
+                              param_val: ""
+                              was_on: false
+                        else:
+                          - if:
+                              condition:
+                                lambda: "return std::string(\"${TILE3_LONGPRESS}\") == \"slider\";"
+                              then:
+                                - script.execute:
+                                    id: open_value_overlay
+                                    title: "${TILE3_TITLE}"
+                                    entity: "${TILE3_ENTITY}"
+                                    tile_type: "${TILE3_TYPE}"
+                                    longpress_mode: "${TILE3_LONGPRESS_SLIDER}"
+                                    was_on: !lambda |-
+                                      if (std::string("${TILE3_TYPE}") == "cover")
+                                        return id(tile3_cover_state).state != "closed";
+                                      return std::string(id(ha_state_tile3).state.c_str()) == "on";
+                                    off_value: !lambda "return atoi(\"${TILE3_LONGPRESS_OFF_VALUE}\");"
+                                    brightness_value: !lambda "return id(tile3_brightness).state;"
+                                    percentage_value: !lambda "return id(tile3_percentage).state;"
+                                    position_value: !lambda "return id(tile3_cover_position).state;"
+                                    icon_text: "${TILE3_ICON}"
+                                    slider_bg_color: ${TILE3_BG_DISABLED_COLOR}
+                                    slider_fill_color: ${TILE3_CIRCLE_ACTIVE_COLOR}
+                                    slider_icon_color: ${TILE3_ICON_ACTIVE_COLOR}
+                                    label_off: "${TILE3_LABEL_OFF}"
+                                    label_on: "${TILE3_LABEL_ON}"
+                                    supported_color_modes: !lambda "return std::string(id(tile3_supported_color_modes).state.c_str());"
+                                    rgb_color: !lambda "return std::string(id(tile3_rgb_color).state.c_str());"
+                                    climate_current_temperature: !lambda "return id(tile3_climate_current_temperature).state;"
+                                    climate_target_temperature: !lambda "return id(tile3_climate_target_temperature).state;"
+                                    climate_humidity: !lambda "return id(tile3_climate_humidity).state;"
+                                    climate_mode: !lambda "return std::string(id(tile3_climate_mode).state.c_str());"
+                                    climate_supported_modes: !lambda "return std::string(id(tile3_climate_supported_modes).state.c_str());"
+                                    climate_min_temp: "${TILE3_CLIMATE_MIN_TEMP}"
+                                    climate_max_temp: "${TILE3_CLIMATE_MAX_TEMP}"
+                                    climate_step: "${TILE3_CLIMATE_STEP}"
 
-        # ---------- TILE 4 ----------
-        - obj:
-            id: tile4
-            x: ${GRID_T4_X}
-            y: ${GRID_T4_Y}
-            width: ${TILE_W}
-            height: ${TILE_H}
-            styles: style_tile
-            scrollable: false
-            scrollbar_mode: 'OFF'
-            widgets:
+              # ---------- TILE 4 ----------
               - obj:
-                  id: tile4_icon_circle
-                  x: ${TILE_ICON_X}
-                  y: ${TILE_ICON_Y}
-                  width: 36
-                  height: 36
-                  styles: style_icon_circle
-                  clickable: false
+                  id: tile4
+                  width: ${TILE_W}
+                  height: ${TILE_H}
+                  styles: style_tile
                   scrollable: false
                   scrollbar_mode: 'OFF'
                   widgets:
-                    - label:
-                        id: tile4_icon_lbl
-                        align: CENTER
-                        text_font: materialdesign_icons
-                        text_color: 0xFFFFFF
-                        text: "${TILE4_ICON}"
+                    - obj:
+                        id: tile4_icon_circle
+                        x: ${TILE_ICON_X}
+                        y: ${TILE_ICON_Y}
+                        width: 36
+                        height: 36
+                        styles: style_icon_circle
                         clickable: false
-              - label:
-                  id: t4_title
-                  x: ${TILE_TITLE_X}
-                  y: ${TILE_TITLE_Y}
-                  text: "${TILE4_TITLE}"
-                  styles: style_title
-                  clickable: false
-              - label:
-                  id: t4_value
-                  x: ${TILE_VALUE_X}
-                  y: ${TILE_VALUE_Y}
-                  text: "—"
-                  styles: style_value
-                  clickable: false
-            on_short_click:
-              - script.execute: { id: publish_action, action: "tile4_press" }
-              - script.execute:
-                  id: do_tile_action
-                  tile_type: "${TILE4_TYPE}"
-                  tap_action: "${TILE4_TAP_ACTION}"
-                  service: "${TILE4_TAP_SERVICE}"
-                  entity_id: "${TILE4_ENTITY}"
-                  param_key: "${TILE4_TAP_PARAM_KEY}"
-                  param_val: "${TILE4_TAP_PARAM_VAL}"
-                  was_on: !lambda |-
-                    if (std::string("${TILE4_TYPE}") == "cover")
-                      return id(tile4_cover_state).state != "closed";
-                    return std::string(id(ha_state_tile4).state.c_str()) == "on";
-            on_long_press:
-              - script.execute: { id: publish_action, action: "tile4_long_press" }
-              - if:
-                  condition:
-                    lambda: "return std::string(\"${TILE4_LONGPRESS}\") == \"action\";"
-                  then:
+                        scrollable: false
+                        scrollbar_mode: 'OFF'
+                        widgets:
+                          - label:
+                              id: tile4_icon_lbl
+                              align: CENTER
+                              text_font: materialdesign_icons
+                              text_color: 0xFFFFFF
+                              text: "${TILE4_ICON}"
+                              clickable: false
+                    - label:
+                        id: t4_title
+                        x: ${TILE_TITLE_X}
+                        y: ${TILE_TITLE_Y}
+                        text: "${TILE4_TITLE}"
+                        styles: style_title
+                        clickable: false
+                    - label:
+                        id: t4_value
+                        x: ${TILE_VALUE_X}
+                        y: ${TILE_VALUE_Y}
+                        text: "—"
+                        styles: style_value
+                        clickable: false
+                  on_short_click:
+                    - script.execute: { id: publish_action, action: "tile4_press" }
                     - script.execute:
                         id: do_tile_action
-                        tile_type: !lambda |-
-                          std::string t = "${TILE4_LONGPRESS_ACTION_TYPE}";
-                          return t.empty() ? std::string("${TILE4_TYPE}") : t;
-                        tap_action: "activate"
-                        service: "${TILE4_LONGPRESS_ACTION_SERVICE}"
-                        entity_id: "${TILE4_LONGPRESS_ACTION}"
-                        param_key: ""
-                        param_val: ""
-                        was_on: false
-                  else:
+                        tile_type: "${TILE4_TYPE}"
+                        tap_action: "${TILE4_TAP_ACTION}"
+                        service: "${TILE4_TAP_SERVICE}"
+                        entity_id: "${TILE4_ENTITY}"
+                        param_key: "${TILE4_TAP_PARAM_KEY}"
+                        param_val: "${TILE4_TAP_PARAM_VAL}"
+                        was_on: !lambda |-
+                          if (std::string("${TILE4_TYPE}") == "cover")
+                            return id(tile4_cover_state).state != "closed";
+                          return std::string(id(ha_state_tile4).state.c_str()) == "on";
+                  on_long_press:
+                    - script.execute: { id: publish_action, action: "tile4_long_press" }
                     - if:
                         condition:
-                          lambda: "return std::string(\"${TILE4_LONGPRESS}\") == \"slider\";"
+                          lambda: "return std::string(\"${TILE4_LONGPRESS}\") == \"action\";"
                         then:
                           - script.execute:
-                              id: open_value_overlay
-                              title: "${TILE4_TITLE}"
-                              entity: "${TILE4_ENTITY}"
-                              tile_type: "${TILE4_TYPE}"
-                              longpress_mode: "${TILE4_LONGPRESS_SLIDER}"
-                              was_on: !lambda |-
-                                if (std::string("${TILE4_TYPE}") == "cover")
-                                  return id(tile4_cover_state).state != "closed";
-                                return std::string(id(ha_state_tile4).state.c_str()) == "on";
-                              off_value: !lambda "return atoi(\"${TILE4_LONGPRESS_OFF_VALUE}\");"
-                              brightness_value: !lambda "return id(tile4_brightness).state;"
-                              percentage_value: !lambda "return id(tile4_percentage).state;"
-                              position_value: !lambda "return id(tile4_cover_position).state;"
-                              icon_text: "${TILE4_ICON}"
-                              slider_bg_color: ${TILE4_BG_DISABLED_COLOR}
-                              slider_fill_color: ${TILE4_CIRCLE_ACTIVE_COLOR}
-                              slider_icon_color: ${TILE4_ICON_ACTIVE_COLOR}
-                              label_off: "${TILE4_LABEL_OFF}"
-                              label_on: "${TILE4_LABEL_ON}"
-                              supported_color_modes: !lambda "return std::string(id(tile4_supported_color_modes).state.c_str());"
-                              rgb_color: !lambda "return std::string(id(tile4_rgb_color).state.c_str());"
-                              climate_current_temperature: !lambda "return id(tile4_climate_current_temperature).state;"
-                              climate_target_temperature: !lambda "return id(tile4_climate_target_temperature).state;"
-                              climate_humidity: !lambda "return id(tile4_climate_humidity).state;"
-                              climate_mode: !lambda "return std::string(id(tile4_climate_mode).state.c_str());"
-                              climate_supported_modes: !lambda "return std::string(id(tile4_climate_supported_modes).state.c_str());"
-                              climate_min_temp: "${TILE4_CLIMATE_MIN_TEMP}"
-                              climate_max_temp: "${TILE4_CLIMATE_MAX_TEMP}"
-                              climate_step: "${TILE4_CLIMATE_STEP}"
+                              id: do_tile_action
+                              tile_type: !lambda |-
+                                std::string t = "${TILE4_LONGPRESS_ACTION_TYPE}";
+                                return t.empty() ? std::string("${TILE4_TYPE}") : t;
+                              tap_action: "activate"
+                              service: "${TILE4_LONGPRESS_ACTION_SERVICE}"
+                              entity_id: "${TILE4_LONGPRESS_ACTION}"
+                              param_key: ""
+                              param_val: ""
+                              was_on: false
+                        else:
+                          - if:
+                              condition:
+                                lambda: "return std::string(\"${TILE4_LONGPRESS}\") == \"slider\";"
+                              then:
+                                - script.execute:
+                                    id: open_value_overlay
+                                    title: "${TILE4_TITLE}"
+                                    entity: "${TILE4_ENTITY}"
+                                    tile_type: "${TILE4_TYPE}"
+                                    longpress_mode: "${TILE4_LONGPRESS_SLIDER}"
+                                    was_on: !lambda |-
+                                      if (std::string("${TILE4_TYPE}") == "cover")
+                                        return id(tile4_cover_state).state != "closed";
+                                      return std::string(id(ha_state_tile4).state.c_str()) == "on";
+                                    off_value: !lambda "return atoi(\"${TILE4_LONGPRESS_OFF_VALUE}\");"
+                                    brightness_value: !lambda "return id(tile4_brightness).state;"
+                                    percentage_value: !lambda "return id(tile4_percentage).state;"
+                                    position_value: !lambda "return id(tile4_cover_position).state;"
+                                    icon_text: "${TILE4_ICON}"
+                                    slider_bg_color: ${TILE4_BG_DISABLED_COLOR}
+                                    slider_fill_color: ${TILE4_CIRCLE_ACTIVE_COLOR}
+                                    slider_icon_color: ${TILE4_ICON_ACTIVE_COLOR}
+                                    label_off: "${TILE4_LABEL_OFF}"
+                                    label_on: "${TILE4_LABEL_ON}"
+                                    supported_color_modes: !lambda "return std::string(id(tile4_supported_color_modes).state.c_str());"
+                                    rgb_color: !lambda "return std::string(id(tile4_rgb_color).state.c_str());"
+                                    climate_current_temperature: !lambda "return id(tile4_climate_current_temperature).state;"
+                                    climate_target_temperature: !lambda "return id(tile4_climate_target_temperature).state;"
+                                    climate_humidity: !lambda "return id(tile4_climate_humidity).state;"
+                                    climate_mode: !lambda "return std::string(id(tile4_climate_mode).state.c_str());"
+                                    climate_supported_modes: !lambda "return std::string(id(tile4_climate_supported_modes).state.c_str());"
+                                    climate_min_temp: "${TILE4_CLIMATE_MIN_TEMP}"
+                                    climate_max_temp: "${TILE4_CLIMATE_MAX_TEMP}"
+                                    climate_step: "${TILE4_CLIMATE_STEP}"
 
-        # ---------- TILE 5 ----------
-        - obj:
-            id: tile5
-            x: ${GRID_T5_X}
-            y: ${GRID_T5_Y}
-            width: ${TILE_W}
-            height: ${TILE_H}
-            styles: style_tile
-            scrollable: false
-            scrollbar_mode: 'OFF'
-            widgets:
+              # ---------- TILE 5 ----------
               - obj:
-                  id: tile5_icon_circle
-                  x: ${TILE_ICON_X}
-                  y: ${TILE_ICON_Y}
-                  width: 36
-                  height: 36
-                  styles: style_icon_circle
-                  clickable: false
+                  id: tile5
+                  width: ${TILE_W}
+                  height: ${TILE_H}
+                  styles: style_tile
                   scrollable: false
                   scrollbar_mode: 'OFF'
                   widgets:
-                    - label:
-                        id: tile5_icon_lbl
-                        align: CENTER
-                        text_font: materialdesign_icons
-                        text_color: 0xFFFFFF
-                        text: "${TILE5_ICON}"
+                    - obj:
+                        id: tile5_icon_circle
+                        x: ${TILE_ICON_X}
+                        y: ${TILE_ICON_Y}
+                        width: 36
+                        height: 36
+                        styles: style_icon_circle
                         clickable: false
-              - label:
-                  id: t5_title
-                  x: ${TILE_TITLE_X}
-                  y: ${TILE_TITLE_Y}
-                  text: "${TILE5_TITLE}"
-                  styles: style_title
-                  clickable: false
-              - label:
-                  id: t5_value
-                  x: ${TILE_VALUE_X}
-                  y: ${TILE_VALUE_Y}
-                  text: "—"
-                  styles: style_value
-                  clickable: false
-            on_short_click:
-              - script.execute: { id: publish_action, action: "tile5_press" }
-              - script.execute:
-                  id: do_tile_action
-                  tile_type: "${TILE5_TYPE}"
-                  tap_action: "${TILE5_TAP_ACTION}"
-                  service: "${TILE5_TAP_SERVICE}"
-                  entity_id: "${TILE5_ENTITY}"
-                  param_key: "${TILE5_TAP_PARAM_KEY}"
-                  param_val: "${TILE5_TAP_PARAM_VAL}"
-                  was_on: !lambda |-
-                    if (std::string("${TILE5_TYPE}") == "cover")
-                      return id(tile5_cover_state).state != "closed";
-                    return std::string(id(ha_state_tile5).state.c_str()) == "on";
-            on_long_press:
-              - script.execute: { id: publish_action, action: "tile5_long_press" }
-              - if:
-                  condition:
-                    lambda: "return std::string(\"${TILE5_LONGPRESS}\") == \"action\";"
-                  then:
+                        scrollable: false
+                        scrollbar_mode: 'OFF'
+                        widgets:
+                          - label:
+                              id: tile5_icon_lbl
+                              align: CENTER
+                              text_font: materialdesign_icons
+                              text_color: 0xFFFFFF
+                              text: "${TILE5_ICON}"
+                              clickable: false
+                    - label:
+                        id: t5_title
+                        x: ${TILE_TITLE_X}
+                        y: ${TILE_TITLE_Y}
+                        text: "${TILE5_TITLE}"
+                        styles: style_title
+                        clickable: false
+                    - label:
+                        id: t5_value
+                        x: ${TILE_VALUE_X}
+                        y: ${TILE_VALUE_Y}
+                        text: "—"
+                        styles: style_value
+                        clickable: false
+                  on_short_click:
+                    - script.execute: { id: publish_action, action: "tile5_press" }
                     - script.execute:
                         id: do_tile_action
-                        tile_type: !lambda |-
-                          std::string t = "${TILE5_LONGPRESS_ACTION_TYPE}";
-                          return t.empty() ? std::string("${TILE5_TYPE}") : t;
-                        tap_action: "activate"
-                        service: "${TILE5_LONGPRESS_ACTION_SERVICE}"
-                        entity_id: "${TILE5_LONGPRESS_ACTION}"
-                        param_key: ""
-                        param_val: ""
-                        was_on: false
-                  else:
+                        tile_type: "${TILE5_TYPE}"
+                        tap_action: "${TILE5_TAP_ACTION}"
+                        service: "${TILE5_TAP_SERVICE}"
+                        entity_id: "${TILE5_ENTITY}"
+                        param_key: "${TILE5_TAP_PARAM_KEY}"
+                        param_val: "${TILE5_TAP_PARAM_VAL}"
+                        was_on: !lambda |-
+                          if (std::string("${TILE5_TYPE}") == "cover")
+                            return id(tile5_cover_state).state != "closed";
+                          return std::string(id(ha_state_tile5).state.c_str()) == "on";
+                  on_long_press:
+                    - script.execute: { id: publish_action, action: "tile5_long_press" }
                     - if:
                         condition:
-                          lambda: "return std::string(\"${TILE5_LONGPRESS}\") == \"slider\";"
+                          lambda: "return std::string(\"${TILE5_LONGPRESS}\") == \"action\";"
                         then:
                           - script.execute:
-                              id: open_value_overlay
-                              title: "${TILE5_TITLE}"
-                              entity: "${TILE5_ENTITY}"
-                              tile_type: "${TILE5_TYPE}"
-                              longpress_mode: "${TILE5_LONGPRESS_SLIDER}"
-                              was_on: !lambda |-
-                                if (std::string("${TILE5_TYPE}") == "cover")
-                                  return id(tile5_cover_state).state != "closed";
-                                return std::string(id(ha_state_tile5).state.c_str()) == "on";
-                              off_value: !lambda "return atoi(\"${TILE5_LONGPRESS_OFF_VALUE}\");"
-                              brightness_value: !lambda "return id(tile5_brightness).state;"
-                              percentage_value: !lambda "return id(tile5_percentage).state;"
-                              position_value: !lambda "return id(tile5_cover_position).state;"
-                              icon_text: "${TILE5_ICON}"
-                              slider_bg_color: ${TILE5_BG_DISABLED_COLOR}
-                              slider_fill_color: ${TILE5_CIRCLE_ACTIVE_COLOR}
-                              slider_icon_color: ${TILE5_ICON_ACTIVE_COLOR}
-                              label_off: "${TILE5_LABEL_OFF}"
-                              label_on: "${TILE5_LABEL_ON}"
-                              supported_color_modes: !lambda "return std::string(id(tile5_supported_color_modes).state.c_str());"
-                              rgb_color: !lambda "return std::string(id(tile5_rgb_color).state.c_str());"
-                              climate_current_temperature: !lambda "return id(tile5_climate_current_temperature).state;"
-                              climate_target_temperature: !lambda "return id(tile5_climate_target_temperature).state;"
-                              climate_humidity: !lambda "return id(tile5_climate_humidity).state;"
-                              climate_mode: !lambda "return std::string(id(tile5_climate_mode).state.c_str());"
-                              climate_supported_modes: !lambda "return std::string(id(tile5_climate_supported_modes).state.c_str());"
-                              climate_min_temp: "${TILE5_CLIMATE_MIN_TEMP}"
-                              climate_max_temp: "${TILE5_CLIMATE_MAX_TEMP}"
-                              climate_step: "${TILE5_CLIMATE_STEP}"
+                              id: do_tile_action
+                              tile_type: !lambda |-
+                                std::string t = "${TILE5_LONGPRESS_ACTION_TYPE}";
+                                return t.empty() ? std::string("${TILE5_TYPE}") : t;
+                              tap_action: "activate"
+                              service: "${TILE5_LONGPRESS_ACTION_SERVICE}"
+                              entity_id: "${TILE5_LONGPRESS_ACTION}"
+                              param_key: ""
+                              param_val: ""
+                              was_on: false
+                        else:
+                          - if:
+                              condition:
+                                lambda: "return std::string(\"${TILE5_LONGPRESS}\") == \"slider\";"
+                              then:
+                                - script.execute:
+                                    id: open_value_overlay
+                                    title: "${TILE5_TITLE}"
+                                    entity: "${TILE5_ENTITY}"
+                                    tile_type: "${TILE5_TYPE}"
+                                    longpress_mode: "${TILE5_LONGPRESS_SLIDER}"
+                                    was_on: !lambda |-
+                                      if (std::string("${TILE5_TYPE}") == "cover")
+                                        return id(tile5_cover_state).state != "closed";
+                                      return std::string(id(ha_state_tile5).state.c_str()) == "on";
+                                    off_value: !lambda "return atoi(\"${TILE5_LONGPRESS_OFF_VALUE}\");"
+                                    brightness_value: !lambda "return id(tile5_brightness).state;"
+                                    percentage_value: !lambda "return id(tile5_percentage).state;"
+                                    position_value: !lambda "return id(tile5_cover_position).state;"
+                                    icon_text: "${TILE5_ICON}"
+                                    slider_bg_color: ${TILE5_BG_DISABLED_COLOR}
+                                    slider_fill_color: ${TILE5_CIRCLE_ACTIVE_COLOR}
+                                    slider_icon_color: ${TILE5_ICON_ACTIVE_COLOR}
+                                    label_off: "${TILE5_LABEL_OFF}"
+                                    label_on: "${TILE5_LABEL_ON}"
+                                    supported_color_modes: !lambda "return std::string(id(tile5_supported_color_modes).state.c_str());"
+                                    rgb_color: !lambda "return std::string(id(tile5_rgb_color).state.c_str());"
+                                    climate_current_temperature: !lambda "return id(tile5_climate_current_temperature).state;"
+                                    climate_target_temperature: !lambda "return id(tile5_climate_target_temperature).state;"
+                                    climate_humidity: !lambda "return id(tile5_climate_humidity).state;"
+                                    climate_mode: !lambda "return std::string(id(tile5_climate_mode).state.c_str());"
+                                    climate_supported_modes: !lambda "return std::string(id(tile5_climate_supported_modes).state.c_str());"
+                                    climate_min_temp: "${TILE5_CLIMATE_MIN_TEMP}"
+                                    climate_max_temp: "${TILE5_CLIMATE_MAX_TEMP}"
+                                    climate_step: "${TILE5_CLIMATE_STEP}"
 
-        # ---------- TILE 6 ----------
-        - obj:
-            id: tile6
-            x: ${GRID_T6_X}
-            y: ${GRID_T6_Y}
-            width: ${TILE_W}
-            height: ${TILE_H}
-            styles: style_tile
-            scrollable: false
-            scrollbar_mode: 'OFF'
-            widgets:
+              # ---------- TILE 6 ----------
               - obj:
-                  id: tile6_icon_circle
-                  x: ${TILE_ICON_X}
-                  y: ${TILE_ICON_Y}
-                  width: 36
-                  height: 36
-                  styles: style_icon_circle
-                  clickable: false
+                  id: tile6
+                  width: ${TILE_W}
+                  height: ${TILE_H}
+                  styles: style_tile
                   scrollable: false
                   scrollbar_mode: 'OFF'
                   widgets:
-                    - label:
-                        id: tile6_icon_lbl
-                        align: CENTER
-                        text_font: materialdesign_icons
-                        text_color: 0xFFFFFF
-                        text: "${TILE6_ICON}"
+                    - obj:
+                        id: tile6_icon_circle
+                        x: ${TILE_ICON_X}
+                        y: ${TILE_ICON_Y}
+                        width: 36
+                        height: 36
+                        styles: style_icon_circle
                         clickable: false
-              - label:
-                  id: t6_title
-                  x: ${TILE_TITLE_X}
-                  y: ${TILE_TITLE_Y}
-                  text: "${TILE6_TITLE}"
-                  styles: style_title
-                  clickable: false
-              - label:
-                  id: t6_value
-                  x: ${TILE_VALUE_X}
-                  y: ${TILE_VALUE_Y}
-                  text: "—"
-                  styles: style_value
-                  clickable: false
-            on_short_click:
-              - script.execute: { id: publish_action, action: "tile6_press" }
-              - script.execute:
-                  id: do_tile_action
-                  tile_type: "${TILE6_TYPE}"
-                  tap_action: "${TILE6_TAP_ACTION}"
-                  service: "${TILE6_TAP_SERVICE}"
-                  entity_id: "${TILE6_ENTITY}"
-                  param_key: "${TILE6_TAP_PARAM_KEY}"
-                  param_val: "${TILE6_TAP_PARAM_VAL}"
-                  was_on: !lambda |-
-                    if (std::string("${TILE6_TYPE}") == "cover")
-                      return id(tile6_cover_state).state != "closed";
-                    return std::string(id(ha_state_tile6).state.c_str()) == "on";
-            on_long_press:
-              - script.execute: { id: publish_action, action: "tile6_long_press" }
-              - if:
-                  condition:
-                    lambda: "return std::string(\"${TILE6_LONGPRESS}\") == \"action\";"
-                  then:
+                        scrollable: false
+                        scrollbar_mode: 'OFF'
+                        widgets:
+                          - label:
+                              id: tile6_icon_lbl
+                              align: CENTER
+                              text_font: materialdesign_icons
+                              text_color: 0xFFFFFF
+                              text: "${TILE6_ICON}"
+                              clickable: false
+                    - label:
+                        id: t6_title
+                        x: ${TILE_TITLE_X}
+                        y: ${TILE_TITLE_Y}
+                        text: "${TILE6_TITLE}"
+                        styles: style_title
+                        clickable: false
+                    - label:
+                        id: t6_value
+                        x: ${TILE_VALUE_X}
+                        y: ${TILE_VALUE_Y}
+                        text: "—"
+                        styles: style_value
+                        clickable: false
+                  on_short_click:
+                    - script.execute: { id: publish_action, action: "tile6_press" }
                     - script.execute:
                         id: do_tile_action
-                        tile_type: !lambda |-
-                          std::string t = "${TILE6_LONGPRESS_ACTION_TYPE}";
-                          return t.empty() ? std::string("${TILE6_TYPE}") : t;
-                        tap_action: "activate"
-                        service: "${TILE6_LONGPRESS_ACTION_SERVICE}"
-                        entity_id: "${TILE6_LONGPRESS_ACTION}"
-                        param_key: ""
-                        param_val: ""
-                        was_on: false
-                  else:
+                        tile_type: "${TILE6_TYPE}"
+                        tap_action: "${TILE6_TAP_ACTION}"
+                        service: "${TILE6_TAP_SERVICE}"
+                        entity_id: "${TILE6_ENTITY}"
+                        param_key: "${TILE6_TAP_PARAM_KEY}"
+                        param_val: "${TILE6_TAP_PARAM_VAL}"
+                        was_on: !lambda |-
+                          if (std::string("${TILE6_TYPE}") == "cover")
+                            return id(tile6_cover_state).state != "closed";
+                          return std::string(id(ha_state_tile6).state.c_str()) == "on";
+                  on_long_press:
+                    - script.execute: { id: publish_action, action: "tile6_long_press" }
                     - if:
                         condition:
-                          lambda: "return std::string(\"${TILE6_LONGPRESS}\") == \"slider\";"
+                          lambda: "return std::string(\"${TILE6_LONGPRESS}\") == \"action\";"
                         then:
                           - script.execute:
-                              id: open_value_overlay
-                              title: "${TILE6_TITLE}"
-                              entity: "${TILE6_ENTITY}"
-                              tile_type: "${TILE6_TYPE}"
-                              longpress_mode: "${TILE6_LONGPRESS_SLIDER}"
-                              was_on: !lambda |-
-                                if (std::string("${TILE6_TYPE}") == "cover")
-                                  return id(tile6_cover_state).state != "closed";
-                                return std::string(id(ha_state_tile6).state.c_str()) == "on";
-                              off_value: !lambda "return atoi(\"${TILE6_LONGPRESS_OFF_VALUE}\");"
-                              brightness_value: !lambda "return id(tile6_brightness).state;"
-                              percentage_value: !lambda "return id(tile6_percentage).state;"
-                              position_value: !lambda "return id(tile6_cover_position).state;"
-                              icon_text: "${TILE6_ICON}"
-                              slider_bg_color: ${TILE6_BG_DISABLED_COLOR}
-                              slider_fill_color: ${TILE6_CIRCLE_ACTIVE_COLOR}
-                              slider_icon_color: ${TILE6_ICON_ACTIVE_COLOR}
-                              label_off: "${TILE6_LABEL_OFF}"
-                              label_on: "${TILE6_LABEL_ON}"
-                              supported_color_modes: !lambda "return std::string(id(tile6_supported_color_modes).state.c_str());"
-                              rgb_color: !lambda "return std::string(id(tile6_rgb_color).state.c_str());"
-                              climate_current_temperature: !lambda "return id(tile6_climate_current_temperature).state;"
-                              climate_target_temperature: !lambda "return id(tile6_climate_target_temperature).state;"
-                              climate_humidity: !lambda "return id(tile6_climate_humidity).state;"
-                              climate_mode: !lambda "return std::string(id(tile6_climate_mode).state.c_str());"
-                              climate_supported_modes: !lambda "return std::string(id(tile6_climate_supported_modes).state.c_str());"
-                              climate_min_temp: "${TILE6_CLIMATE_MIN_TEMP}"
-                              climate_max_temp: "${TILE6_CLIMATE_MAX_TEMP}"
-                              climate_step: "${TILE6_CLIMATE_STEP}"
+                              id: do_tile_action
+                              tile_type: !lambda |-
+                                std::string t = "${TILE6_LONGPRESS_ACTION_TYPE}";
+                                return t.empty() ? std::string("${TILE6_TYPE}") : t;
+                              tap_action: "activate"
+                              service: "${TILE6_LONGPRESS_ACTION_SERVICE}"
+                              entity_id: "${TILE6_LONGPRESS_ACTION}"
+                              param_key: ""
+                              param_val: ""
+                              was_on: false
+                        else:
+                          - if:
+                              condition:
+                                lambda: "return std::string(\"${TILE6_LONGPRESS}\") == \"slider\";"
+                              then:
+                                - script.execute:
+                                    id: open_value_overlay
+                                    title: "${TILE6_TITLE}"
+                                    entity: "${TILE6_ENTITY}"
+                                    tile_type: "${TILE6_TYPE}"
+                                    longpress_mode: "${TILE6_LONGPRESS_SLIDER}"
+                                    was_on: !lambda |-
+                                      if (std::string("${TILE6_TYPE}") == "cover")
+                                        return id(tile6_cover_state).state != "closed";
+                                      return std::string(id(ha_state_tile6).state.c_str()) == "on";
+                                    off_value: !lambda "return atoi(\"${TILE6_LONGPRESS_OFF_VALUE}\");"
+                                    brightness_value: !lambda "return id(tile6_brightness).state;"
+                                    percentage_value: !lambda "return id(tile6_percentage).state;"
+                                    position_value: !lambda "return id(tile6_cover_position).state;"
+                                    icon_text: "${TILE6_ICON}"
+                                    slider_bg_color: ${TILE6_BG_DISABLED_COLOR}
+                                    slider_fill_color: ${TILE6_CIRCLE_ACTIVE_COLOR}
+                                    slider_icon_color: ${TILE6_ICON_ACTIVE_COLOR}
+                                    label_off: "${TILE6_LABEL_OFF}"
+                                    label_on: "${TILE6_LABEL_ON}"
+                                    supported_color_modes: !lambda "return std::string(id(tile6_supported_color_modes).state.c_str());"
+                                    rgb_color: !lambda "return std::string(id(tile6_rgb_color).state.c_str());"
+                                    climate_current_temperature: !lambda "return id(tile6_climate_current_temperature).state;"
+                                    climate_target_temperature: !lambda "return id(tile6_climate_target_temperature).state;"
+                                    climate_humidity: !lambda "return id(tile6_climate_humidity).state;"
+                                    climate_mode: !lambda "return std::string(id(tile6_climate_mode).state.c_str());"
+                                    climate_supported_modes: !lambda "return std::string(id(tile6_climate_supported_modes).state.c_str());"
+                                    climate_min_temp: "${TILE6_CLIMATE_MIN_TEMP}"
+                                    climate_max_temp: "${TILE6_CLIMATE_MAX_TEMP}"
+                                    climate_step: "${TILE6_CLIMATE_STEP}"
 
-        # ---------- TILE 7 ----------
-        - obj:
-            id: tile7
-            x: ${GRID_T7_X}
-            y: ${GRID_T7_Y}
-            width: ${TILE_W}
-            height: ${TILE_H}
-            styles: style_tile
-            scrollable: false
-            scrollbar_mode: 'OFF'
-            widgets:
+              # ---------- TILE 7 ----------
               - obj:
-                  id: tile7_icon_circle
-                  x: ${TILE_ICON_X}
-                  y: ${TILE_ICON_Y}
-                  width: 36
-                  height: 36
-                  styles: style_icon_circle
-                  clickable: false
+                  id: tile7
+                  width: ${TILE_W}
+                  height: ${TILE_H}
+                  styles: style_tile
                   scrollable: false
                   scrollbar_mode: 'OFF'
                   widgets:
-                    - label:
-                        id: tile7_icon_lbl
-                        align: CENTER
-                        text_font: materialdesign_icons
-                        text_color: 0xFFFFFF
-                        text: "${TILE7_ICON}"
+                    - obj:
+                        id: tile7_icon_circle
+                        x: ${TILE_ICON_X}
+                        y: ${TILE_ICON_Y}
+                        width: 36
+                        height: 36
+                        styles: style_icon_circle
                         clickable: false
-              - label:
-                  id: t7_title
-                  x: ${TILE_TITLE_X}
-                  y: ${TILE_TITLE_Y}
-                  text: "${TILE7_TITLE}"
-                  styles: style_title
-                  clickable: false
-              - label:
-                  id: t7_value
-                  x: ${TILE_VALUE_X}
-                  y: ${TILE_VALUE_Y}
-                  text: "—"
-                  styles: style_value
-                  clickable: false
-            on_short_click:
-              - script.execute: { id: publish_action, action: "tile7_press" }
-              - script.execute:
-                  id: do_tile_action
-                  tile_type: "${TILE7_TYPE}"
-                  tap_action: "${TILE7_TAP_ACTION}"
-                  service: "${TILE7_TAP_SERVICE}"
-                  entity_id: "${TILE7_ENTITY}"
-                  param_key: "${TILE7_TAP_PARAM_KEY}"
-                  param_val: "${TILE7_TAP_PARAM_VAL}"
-                  was_on: !lambda |-
-                    if (std::string("${TILE7_TYPE}") == "cover")
-                      return id(tile7_cover_state).state != "closed";
-                    return std::string(id(ha_state_tile7).state.c_str()) == "on";
-            on_long_press:
-              - script.execute: { id: publish_action, action: "tile7_long_press" }
-              - if:
-                  condition:
-                    lambda: "return std::string(\"${TILE7_LONGPRESS}\") == \"action\";"
-                  then:
+                        scrollable: false
+                        scrollbar_mode: 'OFF'
+                        widgets:
+                          - label:
+                              id: tile7_icon_lbl
+                              align: CENTER
+                              text_font: materialdesign_icons
+                              text_color: 0xFFFFFF
+                              text: "${TILE7_ICON}"
+                              clickable: false
+                    - label:
+                        id: t7_title
+                        x: ${TILE_TITLE_X}
+                        y: ${TILE_TITLE_Y}
+                        text: "${TILE7_TITLE}"
+                        styles: style_title
+                        clickable: false
+                    - label:
+                        id: t7_value
+                        x: ${TILE_VALUE_X}
+                        y: ${TILE_VALUE_Y}
+                        text: "—"
+                        styles: style_value
+                        clickable: false
+                  on_short_click:
+                    - script.execute: { id: publish_action, action: "tile7_press" }
                     - script.execute:
                         id: do_tile_action
-                        tile_type: !lambda |-
-                          std::string t = "${TILE7_LONGPRESS_ACTION_TYPE}";
-                          return t.empty() ? std::string("${TILE7_TYPE}") : t;
-                        tap_action: "activate"
-                        service: "${TILE7_LONGPRESS_ACTION_SERVICE}"
-                        entity_id: "${TILE7_LONGPRESS_ACTION}"
-                        param_key: ""
-                        param_val: ""
-                        was_on: false
-                  else:
+                        tile_type: "${TILE7_TYPE}"
+                        tap_action: "${TILE7_TAP_ACTION}"
+                        service: "${TILE7_TAP_SERVICE}"
+                        entity_id: "${TILE7_ENTITY}"
+                        param_key: "${TILE7_TAP_PARAM_KEY}"
+                        param_val: "${TILE7_TAP_PARAM_VAL}"
+                        was_on: !lambda |-
+                          if (std::string("${TILE7_TYPE}") == "cover")
+                            return id(tile7_cover_state).state != "closed";
+                          return std::string(id(ha_state_tile7).state.c_str()) == "on";
+                  on_long_press:
+                    - script.execute: { id: publish_action, action: "tile7_long_press" }
                     - if:
                         condition:
-                          lambda: "return std::string(\"${TILE7_LONGPRESS}\") == \"slider\";"
+                          lambda: "return std::string(\"${TILE7_LONGPRESS}\") == \"action\";"
                         then:
                           - script.execute:
-                              id: open_value_overlay
-                              title: "${TILE7_TITLE}"
-                              entity: "${TILE7_ENTITY}"
-                              tile_type: "${TILE7_TYPE}"
-                              longpress_mode: "${TILE7_LONGPRESS_SLIDER}"
-                              was_on: !lambda |-
-                                if (std::string("${TILE7_TYPE}") == "cover")
-                                  return id(tile7_cover_state).state != "closed";
-                                return std::string(id(ha_state_tile7).state.c_str()) == "on";
-                              off_value: !lambda "return atoi(\"${TILE7_LONGPRESS_OFF_VALUE}\");"
-                              brightness_value: !lambda "return id(tile7_brightness).state;"
-                              percentage_value: !lambda "return id(tile7_percentage).state;"
-                              position_value: !lambda "return id(tile7_cover_position).state;"
-                              icon_text: "${TILE7_ICON}"
-                              slider_bg_color: ${TILE7_BG_DISABLED_COLOR}
-                              slider_fill_color: ${TILE7_CIRCLE_ACTIVE_COLOR}
-                              slider_icon_color: ${TILE7_ICON_ACTIVE_COLOR}
-                              label_off: "${TILE7_LABEL_OFF}"
-                              label_on: "${TILE7_LABEL_ON}"
-                              supported_color_modes: !lambda "return std::string(id(tile7_supported_color_modes).state.c_str());"
-                              rgb_color: !lambda "return std::string(id(tile7_rgb_color).state.c_str());"
-                              climate_current_temperature: !lambda "return id(tile7_climate_current_temperature).state;"
-                              climate_target_temperature: !lambda "return id(tile7_climate_target_temperature).state;"
-                              climate_humidity: !lambda "return id(tile7_climate_humidity).state;"
-                              climate_mode: !lambda "return std::string(id(tile7_climate_mode).state.c_str());"
-                              climate_supported_modes: !lambda "return std::string(id(tile7_climate_supported_modes).state.c_str());"
-                              climate_min_temp: "${TILE7_CLIMATE_MIN_TEMP}"
-                              climate_max_temp: "${TILE7_CLIMATE_MAX_TEMP}"
-                              climate_step: "${TILE7_CLIMATE_STEP}"
+                              id: do_tile_action
+                              tile_type: !lambda |-
+                                std::string t = "${TILE7_LONGPRESS_ACTION_TYPE}";
+                                return t.empty() ? std::string("${TILE7_TYPE}") : t;
+                              tap_action: "activate"
+                              service: "${TILE7_LONGPRESS_ACTION_SERVICE}"
+                              entity_id: "${TILE7_LONGPRESS_ACTION}"
+                              param_key: ""
+                              param_val: ""
+                              was_on: false
+                        else:
+                          - if:
+                              condition:
+                                lambda: "return std::string(\"${TILE7_LONGPRESS}\") == \"slider\";"
+                              then:
+                                - script.execute:
+                                    id: open_value_overlay
+                                    title: "${TILE7_TITLE}"
+                                    entity: "${TILE7_ENTITY}"
+                                    tile_type: "${TILE7_TYPE}"
+                                    longpress_mode: "${TILE7_LONGPRESS_SLIDER}"
+                                    was_on: !lambda |-
+                                      if (std::string("${TILE7_TYPE}") == "cover")
+                                        return id(tile7_cover_state).state != "closed";
+                                      return std::string(id(ha_state_tile7).state.c_str()) == "on";
+                                    off_value: !lambda "return atoi(\"${TILE7_LONGPRESS_OFF_VALUE}\");"
+                                    brightness_value: !lambda "return id(tile7_brightness).state;"
+                                    percentage_value: !lambda "return id(tile7_percentage).state;"
+                                    position_value: !lambda "return id(tile7_cover_position).state;"
+                                    icon_text: "${TILE7_ICON}"
+                                    slider_bg_color: ${TILE7_BG_DISABLED_COLOR}
+                                    slider_fill_color: ${TILE7_CIRCLE_ACTIVE_COLOR}
+                                    slider_icon_color: ${TILE7_ICON_ACTIVE_COLOR}
+                                    label_off: "${TILE7_LABEL_OFF}"
+                                    label_on: "${TILE7_LABEL_ON}"
+                                    supported_color_modes: !lambda "return std::string(id(tile7_supported_color_modes).state.c_str());"
+                                    rgb_color: !lambda "return std::string(id(tile7_rgb_color).state.c_str());"
+                                    climate_current_temperature: !lambda "return id(tile7_climate_current_temperature).state;"
+                                    climate_target_temperature: !lambda "return id(tile7_climate_target_temperature).state;"
+                                    climate_humidity: !lambda "return id(tile7_climate_humidity).state;"
+                                    climate_mode: !lambda "return std::string(id(tile7_climate_mode).state.c_str());"
+                                    climate_supported_modes: !lambda "return std::string(id(tile7_climate_supported_modes).state.c_str());"
+                                    climate_min_temp: "${TILE7_CLIMATE_MIN_TEMP}"
+                                    climate_max_temp: "${TILE7_CLIMATE_MAX_TEMP}"
+                                    climate_step: "${TILE7_CLIMATE_STEP}"
 
-        # ---------- TILE 8 ----------
-        - obj:
-            id: tile8
-            x: ${GRID_T8_X}
-            y: ${GRID_T8_Y}
-            width: ${TILE_W}
-            height: ${TILE_H}
-            styles: style_tile
-            scrollable: false
-            scrollbar_mode: 'OFF'
-            widgets:
+              # ---------- TILE 8 ----------
               - obj:
-                  id: tile8_icon_circle
-                  x: ${TILE_ICON_X}
-                  y: ${TILE_ICON_Y}
-                  width: 36
-                  height: 36
-                  styles: style_icon_circle
-                  clickable: false
+                  id: tile8
+                  width: ${TILE_W}
+                  height: ${TILE_H}
+                  styles: style_tile
                   scrollable: false
                   scrollbar_mode: 'OFF'
                   widgets:
-                    - label:
-                        id: tile8_icon_lbl
-                        align: CENTER
-                        text_font: materialdesign_icons
-                        text_color: 0xFFFFFF
-                        text: "${TILE8_ICON}"
+                    - obj:
+                        id: tile8_icon_circle
+                        x: ${TILE_ICON_X}
+                        y: ${TILE_ICON_Y}
+                        width: 36
+                        height: 36
+                        styles: style_icon_circle
                         clickable: false
-              - label:
-                  id: t8_title
-                  x: ${TILE_TITLE_X}
-                  y: ${TILE_TITLE_Y}
-                  text: "${TILE8_TITLE}"
-                  styles: style_title
-                  clickable: false
-              - label:
-                  id: t8_value
-                  x: ${TILE_VALUE_X}
-                  y: ${TILE_VALUE_Y}
-                  text: "—"
-                  styles: style_value
-                  clickable: false
-            on_short_click:
-              - script.execute: { id: publish_action, action: "tile8_press" }
-              - script.execute:
-                  id: do_tile_action
-                  tile_type: "${TILE8_TYPE}"
-                  tap_action: "${TILE8_TAP_ACTION}"
-                  service: "${TILE8_TAP_SERVICE}"
-                  entity_id: "${TILE8_ENTITY}"
-                  param_key: "${TILE8_TAP_PARAM_KEY}"
-                  param_val: "${TILE8_TAP_PARAM_VAL}"
-                  was_on: !lambda |-
-                    if (std::string("${TILE8_TYPE}") == "cover")
-                      return id(tile8_cover_state).state != "closed";
-                    return std::string(id(ha_state_tile8).state.c_str()) == "on";
-            on_long_press:
-              - script.execute: { id: publish_action, action: "tile8_long_press" }
-              - if:
-                  condition:
-                    lambda: "return std::string(\"${TILE8_LONGPRESS}\") == \"action\";"
-                  then:
+                        scrollable: false
+                        scrollbar_mode: 'OFF'
+                        widgets:
+                          - label:
+                              id: tile8_icon_lbl
+                              align: CENTER
+                              text_font: materialdesign_icons
+                              text_color: 0xFFFFFF
+                              text: "${TILE8_ICON}"
+                              clickable: false
+                    - label:
+                        id: t8_title
+                        x: ${TILE_TITLE_X}
+                        y: ${TILE_TITLE_Y}
+                        text: "${TILE8_TITLE}"
+                        styles: style_title
+                        clickable: false
+                    - label:
+                        id: t8_value
+                        x: ${TILE_VALUE_X}
+                        y: ${TILE_VALUE_Y}
+                        text: "—"
+                        styles: style_value
+                        clickable: false
+                  on_short_click:
+                    - script.execute: { id: publish_action, action: "tile8_press" }
                     - script.execute:
                         id: do_tile_action
-                        tile_type: !lambda |-
-                          std::string t = "${TILE8_LONGPRESS_ACTION_TYPE}";
-                          return t.empty() ? std::string("${TILE8_TYPE}") : t;
-                        tap_action: "activate"
-                        service: "${TILE8_LONGPRESS_ACTION_SERVICE}"
-                        entity_id: "${TILE8_LONGPRESS_ACTION}"
-                        param_key: ""
-                        param_val: ""
-                        was_on: false
-                  else:
+                        tile_type: "${TILE8_TYPE}"
+                        tap_action: "${TILE8_TAP_ACTION}"
+                        service: "${TILE8_TAP_SERVICE}"
+                        entity_id: "${TILE8_ENTITY}"
+                        param_key: "${TILE8_TAP_PARAM_KEY}"
+                        param_val: "${TILE8_TAP_PARAM_VAL}"
+                        was_on: !lambda |-
+                          if (std::string("${TILE8_TYPE}") == "cover")
+                            return id(tile8_cover_state).state != "closed";
+                          return std::string(id(ha_state_tile8).state.c_str()) == "on";
+                  on_long_press:
+                    - script.execute: { id: publish_action, action: "tile8_long_press" }
                     - if:
                         condition:
-                          lambda: "return std::string(\"${TILE8_LONGPRESS}\") == \"slider\";"
+                          lambda: "return std::string(\"${TILE8_LONGPRESS}\") == \"action\";"
                         then:
                           - script.execute:
-                              id: open_value_overlay
-                              title: "${TILE8_TITLE}"
-                              entity: "${TILE8_ENTITY}"
-                              tile_type: "${TILE8_TYPE}"
-                              longpress_mode: "${TILE8_LONGPRESS_SLIDER}"
-                              was_on: !lambda |-
-                                if (std::string("${TILE8_TYPE}") == "cover")
-                                  return id(tile8_cover_state).state != "closed";
-                                return std::string(id(ha_state_tile8).state.c_str()) == "on";
-                              off_value: !lambda "return atoi(\"${TILE8_LONGPRESS_OFF_VALUE}\");"
-                              brightness_value: !lambda "return id(tile8_brightness).state;"
-                              percentage_value: !lambda "return id(tile8_percentage).state;"
-                              position_value: !lambda "return id(tile8_cover_position).state;"
-                              icon_text: "${TILE8_ICON}"
-                              slider_bg_color: ${TILE8_BG_DISABLED_COLOR}
-                              slider_fill_color: ${TILE8_CIRCLE_ACTIVE_COLOR}
-                              slider_icon_color: ${TILE8_ICON_ACTIVE_COLOR}
-                              label_off: "${TILE8_LABEL_OFF}"
-                              label_on: "${TILE8_LABEL_ON}"
-                              supported_color_modes: !lambda "return std::string(id(tile8_supported_color_modes).state.c_str());"
-                              rgb_color: !lambda "return std::string(id(tile8_rgb_color).state.c_str());"
-                              climate_current_temperature: !lambda "return id(tile8_climate_current_temperature).state;"
-                              climate_target_temperature: !lambda "return id(tile8_climate_target_temperature).state;"
-                              climate_humidity: !lambda "return id(tile8_climate_humidity).state;"
-                              climate_mode: !lambda "return std::string(id(tile8_climate_mode).state.c_str());"
-                              climate_supported_modes: !lambda "return std::string(id(tile8_climate_supported_modes).state.c_str());"
-                              climate_min_temp: "${TILE8_CLIMATE_MIN_TEMP}"
-                              climate_max_temp: "${TILE8_CLIMATE_MAX_TEMP}"
-                              climate_step: "${TILE8_CLIMATE_STEP}"
+                              id: do_tile_action
+                              tile_type: !lambda |-
+                                std::string t = "${TILE8_LONGPRESS_ACTION_TYPE}";
+                                return t.empty() ? std::string("${TILE8_TYPE}") : t;
+                              tap_action: "activate"
+                              service: "${TILE8_LONGPRESS_ACTION_SERVICE}"
+                              entity_id: "${TILE8_LONGPRESS_ACTION}"
+                              param_key: ""
+                              param_val: ""
+                              was_on: false
+                        else:
+                          - if:
+                              condition:
+                                lambda: "return std::string(\"${TILE8_LONGPRESS}\") == \"slider\";"
+                              then:
+                                - script.execute:
+                                    id: open_value_overlay
+                                    title: "${TILE8_TITLE}"
+                                    entity: "${TILE8_ENTITY}"
+                                    tile_type: "${TILE8_TYPE}"
+                                    longpress_mode: "${TILE8_LONGPRESS_SLIDER}"
+                                    was_on: !lambda |-
+                                      if (std::string("${TILE8_TYPE}") == "cover")
+                                        return id(tile8_cover_state).state != "closed";
+                                      return std::string(id(ha_state_tile8).state.c_str()) == "on";
+                                    off_value: !lambda "return atoi(\"${TILE8_LONGPRESS_OFF_VALUE}\");"
+                                    brightness_value: !lambda "return id(tile8_brightness).state;"
+                                    percentage_value: !lambda "return id(tile8_percentage).state;"
+                                    position_value: !lambda "return id(tile8_cover_position).state;"
+                                    icon_text: "${TILE8_ICON}"
+                                    slider_bg_color: ${TILE8_BG_DISABLED_COLOR}
+                                    slider_fill_color: ${TILE8_CIRCLE_ACTIVE_COLOR}
+                                    slider_icon_color: ${TILE8_ICON_ACTIVE_COLOR}
+                                    label_off: "${TILE8_LABEL_OFF}"
+                                    label_on: "${TILE8_LABEL_ON}"
+                                    supported_color_modes: !lambda "return std::string(id(tile8_supported_color_modes).state.c_str());"
+                                    rgb_color: !lambda "return std::string(id(tile8_rgb_color).state.c_str());"
+                                    climate_current_temperature: !lambda "return id(tile8_climate_current_temperature).state;"
+                                    climate_target_temperature: !lambda "return id(tile8_climate_target_temperature).state;"
+                                    climate_humidity: !lambda "return id(tile8_climate_humidity).state;"
+                                    climate_mode: !lambda "return std::string(id(tile8_climate_mode).state.c_str());"
+                                    climate_supported_modes: !lambda "return std::string(id(tile8_climate_supported_modes).state.c_str());"
+                                    climate_min_temp: "${TILE8_CLIMATE_MIN_TEMP}"
+                                    climate_max_temp: "${TILE8_CLIMATE_MAX_TEMP}"
+                                    climate_step: "${TILE8_CLIMATE_STEP}"
 
         # ---------- VALUE SLIDER OVERLAY ----------
         - obj:
