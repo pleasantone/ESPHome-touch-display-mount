@@ -1613,21 +1613,17 @@ display:
     id: my_display
     spi_id: lcd
     # USB-C + Micro-USB CYD variant with an ILI9342 controller (native landscape
-    # 320x240). Uses the generic ILI9342 model rather than ESP32-2432S028-9342:
-    # same controller, but its gamma tables give deeper blacks on this panel.
+    # 320x240). The board model carries data_rate, cs_pin and dc_pin, including
+    # ignore_strapping_warning on GPIO15/GPIO2, so none of that is repeated here.
+    # It differs from the generic ILI9342 model only in its gamma tables.
     # Do NOT add a display transform — rotation is handled by LVGL.
-    model: ILI9342
-    data_rate: 40MHz
-    cs_pin:
-      number: 15
-      ignore_strapping_warning: true
-    dc_pin:
-      number: 2
-      ignore_strapping_warning: true
+    model: ESP32-2432S028-9342
     invert_colors: false
-    # ESPHome's ILI9342 model sets no color_order, so it inherits mipi_spi's
-    # BGR default — on this panel that draws red as blue (greens look nearly
-    # unchanged, which is why it is easy to miss). RGB is correct here.
+    # Neither the ILI9342 chip model nor this board model sets color_order, so
+    # both inherit mipi_spi's BGR default — which on this panel draws red as
+    # blue (greens look nearly unchanged, which is why it is easy to miss).
+    # Reported upstream; if ESPHome adds it to the board model, this line
+    # becomes a harmless restatement rather than something to remove.
     color_order: RGB
     update_interval: never
     auto_clear_enabled: false
