@@ -698,6 +698,10 @@ globals:
     type: std::string
     restore_value: no
 
+  - id: confirm_type
+    type: std::string
+    restore_value: no
+
   - id: last_touch_ms
     type: uint32_t
     restore_value: no
@@ -1731,7 +1735,7 @@ lvgl:
             - obj:
                 id: confirm_card
                 align: CENTER
-                width: 280
+                width: 88%
                 height: 150
                 bg_color: 0xFFFFFF
                 bg_opa: COVER
@@ -1752,7 +1756,7 @@ lvgl:
                   - button:
                       id: confirm_cancel_btn
                       align: BOTTOM_LEFT
-                      width: 118
+                      width: 45%
                       height: 44
                       bg_color: 0x939391
                       radius: 12
@@ -1768,21 +1772,25 @@ lvgl:
                   - button:
                       id: confirm_ok_btn
                       align: BOTTOM_RIGHT
-                      width: 118
+                      width: 45%
                       height: 44
                       bg_color: 0xFF3B30
                       radius: 12
                       shadow_width: 0
                       on_click:
                         - lvgl.widget.hide: confirm_overlay
-                        - if:
-                            condition:
-                              lambda: 'return std::string("${DIRECT_ACTIONS}") == "true";'
-                            then:
-                              - homeassistant.action:
-                                  action: switch.turn_off
-                                  data:
-                                    entity_id: !lambda 'return id(confirm_entity);'
+                        # Hand the work back to do_tile_action as a plain toggle:
+                        # a light, fan or cover then behaves the way it normally
+                        # would, instead of being sent switch.turn_off.
+                        - script.execute:
+                            id: do_tile_action
+                            tile_type: !lambda 'return id(confirm_type);'
+                            tap_action: "toggle"
+                            service: ""
+                            entity_id: !lambda 'return id(confirm_entity);'
+                            param_key: ""
+                            param_val: ""
+                            was_on: true
                       widgets:
                         - label:
                             align: CENTER
@@ -4181,10 +4189,11 @@ script:
       # dialog's "Turn off" button performs the call. Turning ON is never gated.
       - if:
           condition:
-            lambda: 'return tap_action == "confirm_off" && was_on;'
+            lambda: 'return tap_action == "confirm_off" && was_on && std::string("${DIRECT_ACTIONS}") == "true";'
           then:
             - lambda: |-
                 id(confirm_entity) = entity_id;
+                id(confirm_type) = tile_type;
                 std::string title = entity_id;
                 if (entity_id == "${TILE1_ENTITY}") title = "${TILE1_TITLE}";
                 if (entity_id == "${TILE2_ENTITY}") title = "${TILE2_TITLE}";
