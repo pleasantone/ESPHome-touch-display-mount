@@ -553,6 +553,14 @@ substitutions:
   # creation order, which is reading order, 1..8 left to right, top to bottom.
   # ============================================================
 
+  # ----- shared by both orientations -----
+  # The tile area starts 46px down in either shape, clearing an 18px header at
+  # HEADER_Y, and the row gap and overlay slider width do not depend on shape.
+  GRID_Y: "46"
+  GRID_GAP_Y: "8"
+  HEADER_Y: "14"
+  OVERLAY_SLIDER_W: "96"
+
   # ----- PORTRAIT 240x320, 2x4 grid (USB at bottom) -----
   # For USB at the top instead, use ORIENTATION "270" / LVGL_ROTATION "90";
   # nothing else changes.
@@ -568,15 +576,11 @@ substitutions:
   DISPLAY_W: "240"
   DISPLAY_H: "320"
   GRID_X: "6"
-  GRID_Y: "46"
   GRID_W: "228"
   GRID_H: "260"
   GRID_GAP_X: "8"
-  GRID_GAP_Y: "8"
   TILE_W: "110"
   TILE_H: "59"
-  HEADER_Y: "14"
-  OVERLAY_SLIDER_W: "96"
   OVERLAY_SLIDER_H: "200"
   BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background_90.png"
   TILE_ICON_X: "0"
@@ -599,15 +603,11 @@ substitutions:
   # DISPLAY_W: "320"
   # DISPLAY_H: "240"
   # GRID_X: "9"
-  # GRID_Y: "46"
   # GRID_W: "301"
   # GRID_H: "180"
   # GRID_GAP_X: "7"
-  # GRID_GAP_Y: "8"
   # TILE_W: "70"
   # TILE_H: "86"
-  # HEADER_Y: "14"
-  # OVERLAY_SLIDER_W: "96"
   # OVERLAY_SLIDER_H: "160"
   # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background.png"
   # TILE_ICON_X: "9"
