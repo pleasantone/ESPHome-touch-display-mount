@@ -410,7 +410,7 @@ substitutions:
   TILE7_TITLE: "X1C Plug"                          # tile title shown in the UI
   TILE7_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE7_TYPE: "switch"                                # tile type: light | fan | switch | scene | script | cover | climate
-  TILE7_TAP_ACTION: "auto"            # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE7_TAP_ACTION: "confirm_off"            # tap action: auto | toggle | activate | fan_toggle_preset | confirm_off | custom
   TILE7_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE7_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE7_LABEL_OFF: "Off"                           # text shown when entity is off
@@ -460,7 +460,7 @@ substitutions:
   TILE8_TITLE: "H2C Plug"                          # tile title shown in the UI
   TILE8_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE8_TYPE: "switch"                                # tile type: light | fan | switch | scene | script | cover | climate
-  TILE8_TAP_ACTION: "auto"            # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE8_TAP_ACTION: "confirm_off"            # tap action: auto | toggle | activate | fan_toggle_preset | confirm_off | custom
   TILE8_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE8_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE8_LABEL_OFF: "Off"                           # text shown when entity is off
@@ -691,6 +691,10 @@ globals:
     restore_value: no
 
   - id: active_value_suffix
+    type: std::string
+    restore_value: no
+
+  - id: confirm_entity
     type: std::string
     restore_value: no
 
@@ -1652,6 +1656,87 @@ lvgl:
       text_font: sublabel
       text_color: 0xFFFFFF
       text_opa: 100%
+
+  # Confirmation dialog used by confirm_off tiles (the X1C / H2C printer plugs).
+  # Sized for 320x240: card 280x150, 44px buttons.
+  top_layer:
+    widgets:
+      - obj:
+          id: confirm_overlay
+          x: 0
+          y: 0
+          width: ${DISPLAY_W}
+          height: ${DISPLAY_H}
+          bg_color: 0x000000
+          bg_opa: 60%
+          radius: 0
+          border_width: 0
+          hidden: true
+          scrollable: false
+          on_click:
+            - lvgl.widget.hide: confirm_overlay
+          widgets:
+            - obj:
+                id: confirm_card
+                align: CENTER
+                width: 280
+                height: 150
+                bg_color: 0xFFFFFF
+                bg_opa: COVER
+                radius: 18
+                border_width: 0
+                pad_all: 14
+                scrollable: false
+                widgets:
+                  - label:
+                      id: confirm_label
+                      align: TOP_MID
+                      width: 250
+                      long_mode: WRAP
+                      text_align: CENTER
+                      text_font: headline
+                      text_color: 0x000000
+                      text: "Turn off?"
+                  - button:
+                      id: confirm_cancel_btn
+                      align: BOTTOM_LEFT
+                      width: 118
+                      height: 44
+                      bg_color: 0x939391
+                      radius: 12
+                      shadow_width: 0
+                      on_click:
+                        - lvgl.widget.hide: confirm_overlay
+                      widgets:
+                        - label:
+                            align: CENTER
+                            text: "Cancel"
+                            text_font: headline
+                            text_color: 0xFFFFFF
+                  - button:
+                      id: confirm_ok_btn
+                      align: BOTTOM_RIGHT
+                      width: 118
+                      height: 44
+                      bg_color: 0xFF3B30
+                      radius: 12
+                      shadow_width: 0
+                      on_click:
+                        - lvgl.widget.hide: confirm_overlay
+                        - if:
+                            condition:
+                              lambda: 'return std::string("${DIRECT_ACTIONS}") == "true";'
+                            then:
+                              - homeassistant.action:
+                                  action: switch.turn_off
+                                  data:
+                                    entity_id: !lambda 'return id(confirm_entity);'
+                      widgets:
+                        - label:
+                            align: CENTER
+                            text: "Turn off"
+                            text_font: headline
+                            text_color: 0xFFFFFF
 
   pages:
     - id: home_page
@@ -4016,10 +4101,29 @@ script:
       param_val: string
       was_on: bool
     then:
+      # A confirm_off tile that is currently ON asks first and stops here; the
+      # dialog's "Turn off" button performs the call. Turning ON is never gated.
+      - if:
+          condition:
+            lambda: 'return tap_action == "confirm_off" && was_on;'
+          then:
+            - lambda: |-
+                id(confirm_entity) = entity_id;
+                std::string title = entity_id;
+                if (entity_id == "${TILE1_ENTITY}") title = "${TILE1_TITLE}";
+                if (entity_id == "${TILE2_ENTITY}") title = "${TILE2_TITLE}";
+                if (entity_id == "${TILE3_ENTITY}") title = "${TILE3_TITLE}";
+                if (entity_id == "${TILE4_ENTITY}") title = "${TILE4_TITLE}";
+                if (entity_id == "${TILE5_ENTITY}") title = "${TILE5_TITLE}";
+                if (entity_id == "${TILE6_ENTITY}") title = "${TILE6_TITLE}";
+                if (entity_id == "${TILE7_ENTITY}") title = "${TILE7_TITLE}";
+                if (entity_id == "${TILE8_ENTITY}") title = "${TILE8_TITLE}";
+                lv_label_set_text(id(confirm_label), ("Turn off " + title + "?\nThis cuts power to the printer.").c_str());
+            - lvgl.widget.show: confirm_overlay
       - if:
           condition:
             lambda: |-
-              return std::string("${DIRECT_ACTIONS}") == "true";
+              return std::string("${DIRECT_ACTIONS}") == "true" && !(tap_action == "confirm_off" && was_on);
           then:
             - lambda: |-
                 ESP_LOGD("tile", "do_tile_action type=%s action=%s service=%s entity=%s key=%s val=%s was_on=%d",
@@ -4056,7 +4160,7 @@ script:
                   - if:
                       condition:
                         lambda: |-
-                          std::string resolved = tap_action;
+                          std::string resolved = tap_action == "confirm_off" ? std::string("toggle") : tap_action;
                           if (resolved == "auto") {
                             if (tile_type == "scene" || tile_type == "script") resolved = "activate";
                             else resolved = "toggle";
@@ -4119,7 +4223,7 @@ script:
                         - if:
                             condition:
                               lambda: |-
-                                std::string resolved = tap_action;
+                                std::string resolved = tap_action == "confirm_off" ? std::string("toggle") : tap_action;
                                 if (resolved == "auto") {
                                   if (tile_type == "scene" || tile_type == "script") resolved = "activate";
                                   else resolved = "toggle";
