@@ -105,24 +105,24 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE1_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light"                    # main Home Assistant entity for this tile
-  TILE1_STATE_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light"              # entity used for active/inactive state styling
-  TILE1_TITLE: "X1C Light"                           # tile title shown in the UI
-  TILE1_ICON: "\U000F042B"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE1_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
-  TILE1_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE1_ENTITY: "switch.h2c_plug"                 # main Home Assistant entity for this tile
+  TILE1_STATE_ENTITY: "switch.h2c_plug"           # entity used for active/inactive state styling  
+  TILE1_TITLE: "H2C Plug"                          # tile title shown in the UI
+  TILE1_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
+  TILE1_TYPE: "switch"                                # tile type: light | fan | switch | scene | script | cover | climate
+  TILE1_TAP_ACTION: "confirm_off"            # tap action: auto | toggle | activate | fan_toggle_preset | confirm_off | custom
   TILE1_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE1_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE1_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE1_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
-  TILE1_AVAILABILITY_ENTITY: "binary_sensor.x1c_x1c_00m09d460801484_online"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
+  TILE1_AVAILABILITY_ENTITY: "${TILE1_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
                                                    # leave as the tile's own entity to disable the check
 
   # --- colors ---
-  TILE1_CIRCLE_ACTIVE_COLOR: "0xFEC600"            # icon circle color when active
+  TILE1_CIRCLE_ACTIVE_COLOR: "0x30D158"            # icon circle color when active
   TILE1_CIRCLE_DISABLED_COLOR: "0x7B7B6F"          # icon circle color when inactive
   TILE1_ICON_ACTIVE_COLOR: "0xFFFFFF"              # icon color when active
-  TILE1_ICON_DISABLED_COLOR: "0xFEC600"            # icon color when inactive
+  TILE1_ICON_DISABLED_COLOR: "0x30D158"            # icon color when inactive
   TILE1_BG_ACTIVE_COLOR: "0xFFFFFF"                # tile background color when active
   TILE1_BG_DISABLED_COLOR: "0x939391"              # tile background color when inactive
   TILE1_TITLE_ACTIVE_COLOR: "0x000000"             # title color when active
@@ -131,9 +131,9 @@ substitutions:
   TILE1_VALUE_DISABLED_COLOR: "0xFFFFFF"           # value color when inactive
 
   # --- advanced settings ---
-  TILE1_TAP_SERVICE: ""                            # optional service override, e.g. light.toggle
-  TILE1_TAP_PARAM_KEY: ""                          # optional extra service parameter key
-  TILE1_TAP_PARAM_VAL: ""                          # optional extra service parameter value
+  TILE1_TAP_SERVICE: ""                  # optional service override, e.g. fan.toggle
+  TILE1_TAP_PARAM_KEY: ""               # optional extra service parameter key
+  TILE1_TAP_PARAM_VAL: ""                      # optional extra service parameter value
   # if LONGPRESS = slider:
   TILE1_LONGPRESS_SLIDER: "auto"                   # slider type: auto | brightness | percentage | cover_position
   TILE1_LONGPRESS_OFF_VALUE: "0"                   # initial slider value when entity is off
@@ -205,24 +205,24 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE3_ENTITY: "light.riser_lights"                 # main Home Assistant entity for this tile
-  TILE3_STATE_ENTITY: "light.riser_lights"           # entity used for active/inactive state styling
-  TILE3_TITLE: "Riser"                        # tile title shown in the UI
-  TILE3_ICON: "\U000F1051"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE3_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
-  TILE3_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE3_LONGPRESS: "slider"                        # long press mode: none | slider | action
-  TILE3_VALUE_MODE: "auto"                         # value mode: auto | brightness | percentage | preset | text
+  TILE3_ENTITY: "switch.x1c_plug"                 # main Home Assistant entity for this tile
+  TILE3_STATE_ENTITY: "switch.x1c_plug"           # entity used for active/inactive state styling  
+  TILE3_TITLE: "X1C Plug"                          # tile title shown in the UI
+  TILE3_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
+  TILE3_TYPE: "switch"                                # tile type: light | fan | switch | scene | script | cover | climate
+  TILE3_TAP_ACTION: "confirm_off"            # tap action: auto | toggle | activate | fan_toggle_preset | confirm_off | custom
+  TILE3_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE3_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE3_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE3_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
   TILE3_AVAILABILITY_ENTITY: "${TILE3_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
                                                    # leave as the tile's own entity to disable the check
 
   # --- colors ---
-  TILE3_CIRCLE_ACTIVE_COLOR: "0xFEC600"            # icon circle color when active
+  TILE3_CIRCLE_ACTIVE_COLOR: "0x30D158"            # icon circle color when active
   TILE3_CIRCLE_DISABLED_COLOR: "0x7B7B6F"          # icon circle color when inactive
   TILE3_ICON_ACTIVE_COLOR: "0xFFFFFF"              # icon color when active
-  TILE3_ICON_DISABLED_COLOR: "0xFEC600"            # icon color when inactive
+  TILE3_ICON_DISABLED_COLOR: "0x30D158"            # icon color when inactive
   TILE3_BG_ACTIVE_COLOR: "0xFFFFFF"                # tile background color when active
   TILE3_BG_DISABLED_COLOR: "0x939391"              # tile background color when inactive
   TILE3_TITLE_ACTIVE_COLOR: "0x000000"             # title color when active
@@ -231,9 +231,9 @@ substitutions:
   TILE3_VALUE_DISABLED_COLOR: "0xFFFFFF"           # value color when inactive
 
   # --- advanced settings ---
-  TILE3_TAP_SERVICE: ""                            # optional service override, e.g. light.toggle
-  TILE3_TAP_PARAM_KEY: ""                          # optional extra service parameter key
-  TILE3_TAP_PARAM_VAL: ""                          # optional extra service parameter value
+  TILE3_TAP_SERVICE: ""                  # optional service override, e.g. fan.toggle
+  TILE3_TAP_PARAM_KEY: ""               # optional extra service parameter key
+  TILE3_TAP_PARAM_VAL: ""                      # optional extra service parameter value
   # if LONGPRESS = slider:
   TILE3_LONGPRESS_SLIDER: "auto"                   # slider type: auto | brightness | percentage | cover_position
   TILE3_LONGPRESS_OFF_VALUE: "0"                   # initial slider value when entity is off
@@ -255,24 +255,24 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE4_ENTITY: "fan.window_exhaust"               # main Home Assistant entity for this tile
-  TILE4_STATE_ENTITY: "fan.window_exhaust"         # entity used for active/inactive state styling  
-  TILE4_TITLE: "Exhaust"                           # tile title shown in the UI
-  TILE4_ICON: "\U000F11DC"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE4_TYPE: "fan"                              # tile type: light | fan | switch | scene | script | cover | climate
+  TILE4_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light"                    # main Home Assistant entity for this tile
+  TILE4_STATE_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light"              # entity used for active/inactive state styling
+  TILE4_TITLE: "X1C Light"                           # tile title shown in the UI
+  TILE4_ICON: "\U000F042B"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
+  TILE4_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE4_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
   TILE4_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE4_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE4_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE4_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
-  TILE4_AVAILABILITY_ENTITY: "${TILE4_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
+  TILE4_AVAILABILITY_ENTITY: "binary_sensor.x1c_x1c_00m09d460801484_online"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
                                                    # leave as the tile's own entity to disable the check
 
   # --- colors ---
-  TILE4_CIRCLE_ACTIVE_COLOR: "0x00C5EC"            # icon circle color when active
+  TILE4_CIRCLE_ACTIVE_COLOR: "0xFEC600"            # icon circle color when active
   TILE4_CIRCLE_DISABLED_COLOR: "0x7B7B6F"          # icon circle color when inactive
   TILE4_ICON_ACTIVE_COLOR: "0xFFFFFF"              # icon color when active
-  TILE4_ICON_DISABLED_COLOR: "0x00C5EC"            # icon color when inactive
+  TILE4_ICON_DISABLED_COLOR: "0xFEC600"            # icon color when inactive
   TILE4_BG_ACTIVE_COLOR: "0xFFFFFF"                # tile background color when active
   TILE4_BG_DISABLED_COLOR: "0x939391"              # tile background color when inactive
   TILE4_TITLE_ACTIVE_COLOR: "0x000000"             # title color when active
@@ -405,12 +405,12 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE7_ENTITY: "switch.x1c_plug"                 # main Home Assistant entity for this tile
-  TILE7_STATE_ENTITY: "switch.x1c_plug"           # entity used for active/inactive state styling  
-  TILE7_TITLE: "X1C Plug"                          # tile title shown in the UI
-  TILE7_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE7_TYPE: "switch"                                # tile type: light | fan | switch | scene | script | cover | climate
-  TILE7_TAP_ACTION: "confirm_off"            # tap action: auto | toggle | activate | fan_toggle_preset | confirm_off | custom
+  TILE7_ENTITY: "fan.window_exhaust"               # main Home Assistant entity for this tile
+  TILE7_STATE_ENTITY: "fan.window_exhaust"         # entity used for active/inactive state styling  
+  TILE7_TITLE: "Exhaust"                           # tile title shown in the UI
+  TILE7_ICON: "\U000F11DC"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
+  TILE7_TYPE: "fan"                              # tile type: light | fan | switch | scene | script | cover | climate
+  TILE7_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
   TILE7_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE7_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE7_LABEL_OFF: "Off"                           # text shown when entity is off
@@ -419,10 +419,10 @@ substitutions:
                                                    # leave as the tile's own entity to disable the check
 
   # --- colors ---
-  TILE7_CIRCLE_ACTIVE_COLOR: "0x30D158"            # icon circle color when active
+  TILE7_CIRCLE_ACTIVE_COLOR: "0x00C5EC"            # icon circle color when active
   TILE7_CIRCLE_DISABLED_COLOR: "0x7B7B6F"          # icon circle color when inactive
   TILE7_ICON_ACTIVE_COLOR: "0xFFFFFF"              # icon color when active
-  TILE7_ICON_DISABLED_COLOR: "0x30D158"            # icon color when inactive
+  TILE7_ICON_DISABLED_COLOR: "0x00C5EC"            # icon color when inactive
   TILE7_BG_ACTIVE_COLOR: "0xFFFFFF"                # tile background color when active
   TILE7_BG_DISABLED_COLOR: "0x939391"              # tile background color when inactive
   TILE7_TITLE_ACTIVE_COLOR: "0x000000"             # title color when active
@@ -431,9 +431,9 @@ substitutions:
   TILE7_VALUE_DISABLED_COLOR: "0xFFFFFF"           # value color when inactive
 
   # --- advanced settings ---
-  TILE7_TAP_SERVICE: ""                  # optional service override, e.g. fan.toggle
-  TILE7_TAP_PARAM_KEY: ""               # optional extra service parameter key
-  TILE7_TAP_PARAM_VAL: ""                      # optional extra service parameter value
+  TILE7_TAP_SERVICE: ""                            # optional service override, e.g. light.toggle
+  TILE7_TAP_PARAM_KEY: ""                          # optional extra service parameter key
+  TILE7_TAP_PARAM_VAL: ""                          # optional extra service parameter value
   # if LONGPRESS = slider:
   TILE7_LONGPRESS_SLIDER: "auto"                   # slider type: auto | brightness | percentage | cover_position
   TILE7_LONGPRESS_OFF_VALUE: "0"                   # initial slider value when entity is off
@@ -455,24 +455,24 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE8_ENTITY: "switch.h2c_plug"                 # main Home Assistant entity for this tile
-  TILE8_STATE_ENTITY: "switch.h2c_plug"           # entity used for active/inactive state styling  
-  TILE8_TITLE: "H2C Plug"                          # tile title shown in the UI
-  TILE8_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE8_TYPE: "switch"                                # tile type: light | fan | switch | scene | script | cover | climate
-  TILE8_TAP_ACTION: "confirm_off"            # tap action: auto | toggle | activate | fan_toggle_preset | confirm_off | custom
-  TILE8_LONGPRESS: "none"                        # long press mode: none | slider | action
-  TILE8_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
+  TILE8_ENTITY: "light.riser_lights"                 # main Home Assistant entity for this tile
+  TILE8_STATE_ENTITY: "light.riser_lights"           # entity used for active/inactive state styling
+  TILE8_TITLE: "Riser"                        # tile title shown in the UI
+  TILE8_ICON: "\U000F1051"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
+  TILE8_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
+  TILE8_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE8_LONGPRESS: "slider"                        # long press mode: none | slider | action
+  TILE8_VALUE_MODE: "auto"                         # value mode: auto | brightness | percentage | preset | text
   TILE8_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE8_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
   TILE8_AVAILABILITY_ENTITY: "${TILE8_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
                                                    # leave as the tile's own entity to disable the check
 
   # --- colors ---
-  TILE8_CIRCLE_ACTIVE_COLOR: "0x30D158"            # icon circle color when active
+  TILE8_CIRCLE_ACTIVE_COLOR: "0xFEC600"            # icon circle color when active
   TILE8_CIRCLE_DISABLED_COLOR: "0x7B7B6F"          # icon circle color when inactive
   TILE8_ICON_ACTIVE_COLOR: "0xFFFFFF"              # icon color when active
-  TILE8_ICON_DISABLED_COLOR: "0x30D158"            # icon color when inactive
+  TILE8_ICON_DISABLED_COLOR: "0xFEC600"            # icon color when inactive
   TILE8_BG_ACTIVE_COLOR: "0xFFFFFF"                # tile background color when active
   TILE8_BG_DISABLED_COLOR: "0x939391"              # tile background color when inactive
   TILE8_TITLE_ACTIVE_COLOR: "0x000000"             # title color when active
@@ -481,9 +481,9 @@ substitutions:
   TILE8_VALUE_DISABLED_COLOR: "0xFFFFFF"           # value color when inactive
 
   # --- advanced settings ---
-  TILE8_TAP_SERVICE: ""                  # optional service override, e.g. fan.toggle
-  TILE8_TAP_PARAM_KEY: ""               # optional extra service parameter key
-  TILE8_TAP_PARAM_VAL: ""                      # optional extra service parameter value
+  TILE8_TAP_SERVICE: ""                            # optional service override, e.g. light.toggle
+  TILE8_TAP_PARAM_KEY: ""                          # optional extra service parameter key
+  TILE8_TAP_PARAM_VAL: ""                          # optional extra service parameter value
   # if LONGPRESS = slider:
   TILE8_LONGPRESS_SLIDER: "auto"                   # slider type: auto | brightness | percentage | cover_position
   TILE8_LONGPRESS_OFF_VALUE: "0"                   # initial slider value when entity is off
