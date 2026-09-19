@@ -82,6 +82,19 @@ substitutions:
   # release tag on purpose: the MDI_GLYPH_* values are raw codepoints, and an
   # unpinned font bump could quietly change which icon a tile shows.
   # ============================================================
+  # ----- board -----
+  # Which ESP32-2432S028 revision this is. The board model carries the display
+  # pins, data rate and strapping-pin flags, so none of those appear below:
+  #   micro-USB only:     ESP32-2432S028        ILI9341, native portrait 240x320
+  #   USB-C + micro-USB:  ESP32-2432S028-7789   ST7789V
+  #                       ESP32-2432S028-9342   ILI9342, native landscape 320x240
+  # The rotation and touch values further down are per-revision too — see the
+  # table in CLAUDE.md before moving this config to a different board.
+  DISPLAY_MODEL: "ESP32-2432S028-9342"
+  # Neither the ILI9342 chip model nor this board model declares a colour order,
+  # so both inherit mipi_spi's BGR default, which draws red as blue here.
+  DISPLAY_COLOR_ORDER: "RGB"
+
   ASSET_BASE: "https://raw.githubusercontent.com/akuehlewind/ESPHome-touch-display-mount/main/esphome/home-like"
   MDI_FONT_URL: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/v7.4.47/fonts/materialdesignicons-webfont.ttf"
 
@@ -1649,18 +1662,10 @@ display:
   - platform: mipi_spi
     id: my_display
     spi_id: lcd
-    # USB-C + Micro-USB CYD variant with an ILI9342 controller (native landscape
-    # 320x240). The board model carries data_rate, cs_pin and dc_pin, including
-    # ignore_strapping_warning on GPIO15/GPIO2, so none of that is repeated here.
-    # It differs from the generic ILI9342 model only in its gamma tables.
+    # Board revision and colour order live in the substitutions at the top.
     # Do NOT add a display transform — rotation is handled by LVGL.
-    model: ESP32-2432S028-9342
-    # Neither the ILI9342 chip model nor this board model sets color_order, so
-    # both inherit mipi_spi's BGR default — which on this panel draws red as
-    # blue (greens look nearly unchanged, which is why it is easy to miss).
-    # Reported upstream; if ESPHome adds it to the board model, this line
-    # becomes a harmless restatement rather than something to remove.
-    color_order: RGB
+    model: ${DISPLAY_MODEL}
+    color_order: ${DISPLAY_COLOR_ORDER}
     update_interval: never
     auto_clear_enabled: false
 
