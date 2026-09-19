@@ -515,57 +515,113 @@ substitutions:
   # is a label, nothing reads it.
   # ============================================================
 
-  # ----- rotation -----
-  # The only two values that change with orientation, because both landscape
-  # presets are the same shape — the canvas, touch and grid below are identical
-  # either way. Flip the panel by swapping these two lines:
-  #   USB on the left  (in use):  ORIENTATION "180", LVGL_ROTATION "0"
-  #   USB on the right:           ORIENTATION "0",   LVGL_ROTATION "180"
-  ORIENTATION: "180"
-  LVGL_ROTATION: "0"
-
-  # ----- touch -----
+  # ----- touch (both orientations) -----
   # A fixed correction for the panel's native landscape frame, NOT a
-  # per-orientation rotation: LVGL rotates touch coordinates itself. The
-  # calibration values are device-specific — retune them, not the transform,
-  # if taps are offset rather than rotated.
+  # per-orientation rotation: LVGL rotates touch coordinates itself. swap_xy
+  # holds for every preset; the mirrors do not, so they live with the rotation
+  # below. Calibration is device-specific — retune it, not the transform, if
+  # taps are offset rather than rotated.
   TOUCH_SWAP_XY: "true"
-  TOUCH_MIRROR_X: "true"
-  TOUCH_MIRROR_Y: "true"
   TOUCH_CAL_X_MIN: "340"
   TOUCH_CAL_X_MAX: "3860"
   TOUCH_CAL_Y_MIN: "280"
   TOUCH_CAL_Y_MAX: "3860"
 
-  # ----- canvas and tile grid -----
-  # Grid arithmetic (320x240, 8 tiles):
-  #   columns  9 / 86 / 163 / 240, TILE_W 70  -> 4*70 + 3*7 gutters + 9/10 margins
-  #   rows    46 / 140,            TILE_H 86  -> 2*86 + 8 gutter, 14px clear of
-  #                                              the header and the bottom edge
-  #   style_tile pads 8 on every side, so a tile's content box is 54x70: a 36px
-  #   icon circle on top, then the title and value stacked underneath.
-  #   Tile order is 1 2 3 4 across the top row, 5 6 7 8 across the bottom.
-  #   Titles get ~54px of width — keep them to about 8 characters.
-  DISPLAY_W: "320"
-  DISPLAY_H: "240"
-  GRID_COL1_X: "9"
-  GRID_COL2_X: "86"
-  GRID_COL3_X: "163"
-  GRID_COL4_X: "240"
-  GRID_ROW1_Y: "46"
-  GRID_ROW2_Y: "140"
-  TILE_W: "70"
-  TILE_H: "86"
+  # ============================================================
+  # Uncomment ONE orientation block, comment out the other.
+  # LVGL_ROTATION drives everything: LVGL rotates the display output and the
+  # touch coordinates together (ESPHome 2026.4+). The panel is always driven at
+  # its native 320x240 (see display:). ORIENTATION only names where the USB
+  # connector points — it is a label, nothing reads it.
+  #
+  # Each tile carries its own GRID_Tn_X / GRID_Tn_Y, so the two orientations can
+  # use different grid shapes: 4x2 across in landscape, 2x4 down in portrait.
+  # Tile order stays reading order either way, 1..8 left to right, top to bottom.
+  # ============================================================
+
+  # ----- PORTRAIT 240x320, 2x4 grid (USB at bottom) -----
+  # For USB at the top instead, use ORIENTATION "270" / LVGL_ROTATION "90";
+  # nothing else changes.
+  # Grid: columns 6 / 124 at TILE_W 110 (8px gutter, 6px margins); rows 46 /
+  # 113 / 180 / 247 at TILE_H 59 (8px gutters, 14px clear of the header and the
+  # bottom edge). style_tile pads 8, so a content box is 94x43 — too short to
+  # stack a 36px icon above the text, so the icon sits left with the title and
+  # value beside it, leaving ~50px of text width.
+  ORIENTATION: "90"
+  LVGL_ROTATION: "270"
+  TOUCH_MIRROR_X: "false"
+  TOUCH_MIRROR_Y: "false"
+  DISPLAY_W: "240"
+  DISPLAY_H: "320"
+  GRID_T1_X: "6"
+  GRID_T1_Y: "46"
+  GRID_T2_X: "124"
+  GRID_T2_Y: "46"
+  GRID_T3_X: "6"
+  GRID_T3_Y: "113"
+  GRID_T4_X: "124"
+  GRID_T4_Y: "113"
+  GRID_T5_X: "6"
+  GRID_T5_Y: "180"
+  GRID_T6_X: "124"
+  GRID_T6_Y: "180"
+  GRID_T7_X: "6"
+  GRID_T7_Y: "247"
+  GRID_T8_X: "124"
+  GRID_T8_Y: "247"
+  TILE_W: "110"
+  TILE_H: "59"
   HEADER_Y: "14"
   OVERLAY_SLIDER_W: "96"
-  OVERLAY_SLIDER_H: "160"
-  BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background.png"
-  TILE_ICON_X: "9"
-  TILE_ICON_Y: "0"
-  TILE_TITLE_X: "0"
-  TILE_TITLE_Y: "38"
-  TILE_VALUE_X: "0"
-  TILE_VALUE_Y: "54"
+  OVERLAY_SLIDER_H: "200"
+  BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background_90.png"
+  TILE_ICON_X: "0"
+  TILE_ICON_Y: "3"
+  TILE_TITLE_X: "44"
+  TILE_TITLE_Y: "4"
+  TILE_VALUE_X: "44"
+  TILE_VALUE_Y: "20"
+
+  # ----- LANDSCAPE 320x240, 4x2 grid (USB on left) -----
+  # For USB on the right instead, use ORIENTATION "0" / LVGL_ROTATION "180";
+  # nothing else changes.
+  # Grid: columns 9 / 86 / 163 / 240 at TILE_W 70 (7px gutters, 9/10px margins);
+  # rows 46 / 140 at TILE_H 86. A content box is 54x70: a 36px icon circle on
+  # top, then the title and value stacked underneath, ~54px of text width.
+  # ORIENTATION: "180"
+  # LVGL_ROTATION: "0"
+  # TOUCH_MIRROR_X: "true"
+  # TOUCH_MIRROR_Y: "true"
+  # DISPLAY_W: "320"
+  # DISPLAY_H: "240"
+  # GRID_T1_X: "9"
+  # GRID_T1_Y: "46"
+  # GRID_T2_X: "86"
+  # GRID_T2_Y: "46"
+  # GRID_T3_X: "163"
+  # GRID_T3_Y: "46"
+  # GRID_T4_X: "240"
+  # GRID_T4_Y: "46"
+  # GRID_T5_X: "9"
+  # GRID_T5_Y: "140"
+  # GRID_T6_X: "86"
+  # GRID_T6_Y: "140"
+  # GRID_T7_X: "163"
+  # GRID_T7_Y: "140"
+  # GRID_T8_X: "240"
+  # GRID_T8_Y: "140"
+  # TILE_W: "70"
+  # TILE_H: "86"
+  # HEADER_Y: "14"
+  # OVERLAY_SLIDER_W: "96"
+  # OVERLAY_SLIDER_H: "160"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background.png"
+  # TILE_ICON_X: "9"
+  # TILE_ICON_Y: "0"
+  # TILE_TITLE_X: "0"
+  # TILE_TITLE_Y: "38"
+  # TILE_VALUE_X: "0"
+  # TILE_VALUE_Y: "54"
 
 # ============================================================
 # No need to edit below this line.
@@ -1805,8 +1861,8 @@ lvgl:
         # ---------- TILE 1 ----------
         - obj:
             id: tile1
-            x: ${GRID_COL1_X}
-            y: ${GRID_ROW1_Y}
+            x: ${GRID_T1_X}
+            y: ${GRID_T1_Y}
             width: ${TILE_W}
             height: ${TILE_H}
             styles: style_tile
@@ -1915,8 +1971,8 @@ lvgl:
         # ---------- TILE 2 ----------
         - obj:
             id: tile2
-            x: ${GRID_COL2_X}
-            y: ${GRID_ROW1_Y}
+            x: ${GRID_T2_X}
+            y: ${GRID_T2_Y}
             width: ${TILE_W}
             height: ${TILE_H}
             styles: style_tile
@@ -2025,8 +2081,8 @@ lvgl:
         # ---------- TILE 3 ----------
         - obj:
             id: tile3
-            x: ${GRID_COL3_X}
-            y: ${GRID_ROW1_Y}
+            x: ${GRID_T3_X}
+            y: ${GRID_T3_Y}
             width: ${TILE_W}
             height: ${TILE_H}
             styles: style_tile
@@ -2135,8 +2191,8 @@ lvgl:
         # ---------- TILE 4 ----------
         - obj:
             id: tile4
-            x: ${GRID_COL4_X}
-            y: ${GRID_ROW1_Y}
+            x: ${GRID_T4_X}
+            y: ${GRID_T4_Y}
             width: ${TILE_W}
             height: ${TILE_H}
             styles: style_tile
@@ -2245,8 +2301,8 @@ lvgl:
         # ---------- TILE 5 ----------
         - obj:
             id: tile5
-            x: ${GRID_COL1_X}
-            y: ${GRID_ROW2_Y}
+            x: ${GRID_T5_X}
+            y: ${GRID_T5_Y}
             width: ${TILE_W}
             height: ${TILE_H}
             styles: style_tile
@@ -2355,8 +2411,8 @@ lvgl:
         # ---------- TILE 6 ----------
         - obj:
             id: tile6
-            x: ${GRID_COL2_X}
-            y: ${GRID_ROW2_Y}
+            x: ${GRID_T6_X}
+            y: ${GRID_T6_Y}
             width: ${TILE_W}
             height: ${TILE_H}
             styles: style_tile
@@ -2465,8 +2521,8 @@ lvgl:
         # ---------- TILE 7 ----------
         - obj:
             id: tile7
-            x: ${GRID_COL3_X}
-            y: ${GRID_ROW2_Y}
+            x: ${GRID_T7_X}
+            y: ${GRID_T7_Y}
             width: ${TILE_W}
             height: ${TILE_H}
             styles: style_tile
@@ -2575,8 +2631,8 @@ lvgl:
         # ---------- TILE 8 ----------
         - obj:
             id: tile8
-            x: ${GRID_COL4_X}
-            y: ${GRID_ROW2_Y}
+            x: ${GRID_T8_X}
+            y: ${GRID_T8_Y}
             width: ${TILE_W}
             height: ${TILE_H}
             styles: style_tile
