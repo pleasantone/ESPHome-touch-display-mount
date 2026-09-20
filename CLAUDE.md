@@ -41,7 +41,7 @@ Built 2026-09-18 from `origin/main` in throwaway worktrees and validated with `e
 
 `ili9342-variant` (PR #26) also gained a third commit adding `color_order: RGB`, pushed as a fast-forward to the open PR, whose description was rewritten to cover it.
 
-`confirm-off-action` and `slider-live-colour` are pushed but **deliberately have no PR**: upstream `main` has not moved since 2026-06-21 and the five PRs from 2026-09-17 have no comments, so the plan is to open at most one at a time and wait for a sign of life.
+`confirm-off-action` became **PR #32** on 2026-09-19. `slider-live-colour` is pushed but still has no PR: upstream `main` has not moved since 2026-06-21 and none of the earlier PRs have comments, so it is the one being held back.
 
 Each of the three new branches adds its own `## 2026-09-18` CHANGELOG section, so those hunks conflict with one another exactly as #26–#30's do — say so in every PR body.
 
