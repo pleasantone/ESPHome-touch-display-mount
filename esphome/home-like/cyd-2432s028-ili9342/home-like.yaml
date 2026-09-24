@@ -73,12 +73,39 @@ substitutions:
   NIGHT_DIM_BRIGHTNESS: "18"                       # backlight brightness in percent at night
 
   # ============================================================
+  # UI TEXT / LOCALIZATION
+  # Override these values to translate the built-in overlays. The {title}
+  # placeholder can appear anywhere in a confirmation question.
+  # ============================================================
+  UI_CONFIRM_OFF_QUESTION: 'Turn off {title}?\nThis cuts printer power.'   # only the printer plugs confirm, so say what it does
+  UI_CONFIRM_CLOSE_QUESTION: "Close {title}?"
+  UI_CONFIRM_FALLBACK_TITLE: "this device"
+  UI_CANCEL: "Cancel"
+  UI_TURN_OFF: "Turn off"
+  UI_CLOSE: "Close"
+  UI_COLOR: "Color"
+  UI_TEMPERATURE_SHORT: "Temp."
+  UI_BRIGHTNESS: "Brightness"
+  UI_CURRENT: "Current"
+  UI_HUMIDITY: "Humidity"
+  UI_SET_TO: "SET TO"
+  UI_CLIMATE_MODE_OFF: "Off"
+  UI_CLIMATE_MODE_HEAT: "Heat"
+  UI_CLIMATE_MODE_COOL: "Cool"
+  UI_CLIMATE_MODE_HEAT_COOL: "Heat/Cool"
+  UI_CLIMATE_MODE_AUTO: "Auto"
+  UI_CLIMATE_MODE_DRY: "Dry"
+  UI_CLIMATE_MODE_FAN: "Fan"
+
+  # ============================================================
   # REMOTE ASSETS
   # Fonts and images are downloaded at build time, so this file is
   # self-contained: nothing but the YAML is needed to compile it — e.g.
   # in the ESPHome Device Builder add-on under Home Assistant, which has
   # no access to this repository's fonts/ and images/ folders.
-  # ASSET_BASE floats on the repo's main branch. MDI_FONT_URL is pinned to a
+  # ASSET_BASE is pinned to the same upstream commit as upstream's own
+  # config, so a wallpaper change upstream never reaches this panel
+  # unannounced. MDI_FONT_URL is pinned to a
   # release tag on purpose: the MDI_GLYPH_* values are raw codepoints, and an
   # unpinned font bump could quietly change which icon a tile shows.
   # ============================================================
@@ -95,7 +122,7 @@ substitutions:
   # so both inherit mipi_spi's BGR default, which draws red as blue here.
   DISPLAY_COLOR_ORDER: "RGB"
 
-  ASSET_BASE: "https://raw.githubusercontent.com/akuehlewind/ESPHome-touch-display-mount/main/esphome/home-like"
+  ASSET_BASE: "https://raw.githubusercontent.com/akuehlewind/ESPHome-touch-display-mount/9ffa5dfddf695150ad0388f5f5e2bcf786772195/esphome/home-like"
   MDI_FONT_URL: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/v7.4.47/fonts/materialdesignicons-webfont.ttf"
 
   # ============================================================
@@ -123,7 +150,8 @@ substitutions:
   TILE1_TITLE: "H2C Plug"                          # tile title shown in the UI
   TILE1_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE1_TYPE: "switch"                                # tile type: light | fan | switch | scene | script | cover | climate
-  TILE1_TAP_ACTION: "confirm_off"            # tap action: auto | toggle | activate | fan_toggle_preset | confirm_off | custom
+  TILE1_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE1_CONFIRM_OFF: "true"                        # true = confirm before an off/close short-tap action
   TILE1_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE1_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE1_LABEL_OFF: "Off"                           # text shown when entity is off
@@ -174,6 +202,7 @@ substitutions:
   TILE2_ICON: "\U000F042B"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE2_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE2_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE2_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
   TILE2_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE2_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE2_LABEL_OFF: "Off"                           # text shown when entity is off
@@ -223,7 +252,8 @@ substitutions:
   TILE3_TITLE: "X1C Plug"                          # tile title shown in the UI
   TILE3_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE3_TYPE: "switch"                                # tile type: light | fan | switch | scene | script | cover | climate
-  TILE3_TAP_ACTION: "confirm_off"            # tap action: auto | toggle | activate | fan_toggle_preset | confirm_off | custom
+  TILE3_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE3_CONFIRM_OFF: "true"                        # true = confirm before an off/close short-tap action
   TILE3_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE3_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE3_LABEL_OFF: "Off"                           # text shown when entity is off
@@ -274,6 +304,7 @@ substitutions:
   TILE4_ICON: "\U000F042B"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE4_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE4_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE4_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
   TILE4_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE4_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE4_LABEL_OFF: "Off"                           # text shown when entity is off
@@ -324,6 +355,7 @@ substitutions:
   TILE5_ICON: "\U000F0D43"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE5_TYPE: "fan"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE5_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE5_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
   TILE5_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE5_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE5_LABEL_OFF: "Off"                        # text shown when entity is off (closed)
@@ -373,7 +405,8 @@ substitutions:
   TILE6_TITLE: "Heater"                          # tile title shown in the UI
   TILE6_ICON: "\U000F1A45"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE6_TYPE: "fan"                                # tile type: light | fan | switch | scene | script | cover | climate
-  TILE6_TAP_ACTION: "auto"            # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE6_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE6_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
   TILE6_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE6_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE6_LABEL_OFF: "Off"                           # text shown when entity is off
@@ -424,6 +457,7 @@ substitutions:
   TILE7_ICON: "\U000F11DC"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE7_TYPE: "fan"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE7_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE7_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
   TILE7_LONGPRESS: "none"                        # long press mode: none | slider | action
   TILE7_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE7_LABEL_OFF: "Off"                           # text shown when entity is off
@@ -474,6 +508,7 @@ substitutions:
   TILE8_ICON: "\U000F1051"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE8_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE8_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
+  TILE8_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
   TILE8_LONGPRESS: "slider"                        # long press mode: none | slider | action
   TILE8_VALUE_MODE: "auto"                         # value mode: auto | brightness | percentage | preset | text
   TILE8_LABEL_OFF: "Off"                           # text shown when entity is off
@@ -649,10 +684,10 @@ logger:
 
 # Credentials are loaded from secrets.yaml: /config/esphome/secrets.yaml under the
 # ESPHome Device Builder add-on, or the secrets.yaml symlink next to this file locally.
-# Keys used: wifi_ssid, wifi_password, api_encryption_key, ap_fallback_password.
+# Keys used: wifi_ssid, wifi_password, smartdisplay_api_key, wifi_ap_password.
 api:
   encryption:
-    key: !secret api_encryption_key
+    key: !secret smartdisplay_api_key
 
 ota:
   - platform: esphome
@@ -666,7 +701,7 @@ wifi:
   password: !secret wifi_password
   ap:
     ssid: "Smartdisplay Fallback Hotspot"
-    password: !secret ap_fallback_password
+    password: !secret wifi_ap_password
 
 captive_portal:
 
@@ -724,11 +759,17 @@ globals:
     type: std::string
     restore_value: no
 
-  - id: confirm_entity
+  # One shared confirmation dialog is used by all tiles. The overlay blocks
+  # further tile input while these pending values are active.
+  - id: pending_confirm_event
     type: std::string
     restore_value: no
 
-  - id: confirm_type
+  - id: pending_confirm_entity
+    type: std::string
+    restore_value: no
+
+  - id: pending_confirm_type
     type: std::string
     restore_value: no
 
@@ -1731,90 +1772,116 @@ lvgl:
       text_color: 0xFFFFFF
       text_opa: 100%
 
-  # Confirmation dialog used by confirm_off tiles (the X1C / H2C printer plugs).
-  # Sized for 320x240: card 280x150, 44px buttons.
+  # Confirmation shown only for tiles with TILE*_CONFIRM_OFF enabled.
   top_layer:
     widgets:
       - obj:
-          id: confirm_overlay
+          id: confirm_off_overlay
           x: 0
           y: 0
           width: ${DISPLAY_W}
           height: ${DISPLAY_H}
           bg_color: 0x000000
-          bg_opa: 60%
+          bg_opa: 38%
           radius: 0
           border_width: 0
           hidden: true
           scrollable: false
+          clickable: true
           on_click:
-            - lvgl.widget.hide: confirm_overlay
+            - lvgl.widget.hide: confirm_off_overlay
           widgets:
             - obj:
-                id: confirm_card
+                id: confirm_off_card
                 align: CENTER
-                width: 88%
-                height: 150
-                bg_color: 0xFFFFFF
-                bg_opa: COVER
-                radius: 18
-                border_width: 0
-                pad_all: 14
+                width: 82%
+                height: 140
+                bg_color: 0xF2F2F7
+                bg_opa: 96%
+                radius: 16
+                border_width: 1
+                border_color: 0xFFFFFF
+                border_opa: 35%
+                pad_all: 0
                 scrollable: false
+                clickable: true
                 widgets:
                   - label:
-                      id: confirm_label
+                      id: confirm_off_label
                       align: TOP_MID
-                      width: 250
+                      y: 14
+                      width: 88%
+                      height: 74
                       long_mode: WRAP
                       text_align: CENTER
                       text_font: headline
                       text_color: 0x000000
-                      text: "Turn off?"
+                      text: "${UI_CONFIRM_OFF_QUESTION}"
+                      clickable: false
+                  - obj:
+                      align: BOTTOM_MID
+                      y: -44
+                      width: 100%
+                      height: 1
+                      bg_color: 0xC6C6C8
+                      bg_opa: 85%
+                      border_width: 0
+                      clickable: false
+                      scrollable: false
+                  - obj:
+                      align: BOTTOM_MID
+                      width: 1
+                      height: 44
+                      bg_color: 0xC6C6C8
+                      bg_opa: 85%
+                      border_width: 0
+                      clickable: false
+                      scrollable: false
                   - button:
-                      id: confirm_cancel_btn
+                      id: confirm_off_cancel
                       align: BOTTOM_LEFT
-                      width: 45%
+                      width: 50%
                       height: 44
-                      bg_color: 0x939391
-                      radius: 12
+                      bg_opa: TRANSP
+                      radius: 0
+                      border_width: 0
                       shadow_width: 0
                       on_click:
-                        - lvgl.widget.hide: confirm_overlay
+                        - lvgl.widget.hide: confirm_off_overlay
                       widgets:
                         - label:
                             align: CENTER
-                            text: "Cancel"
-                            text_font: headline
-                            text_color: 0xFFFFFF
+                            text: "${UI_CANCEL}"
+                            text_font: sublabel_big
+                            text_color: 0x007AFF
+                            clickable: false
                   - button:
-                      id: confirm_ok_btn
+                      id: confirm_off_accept
                       align: BOTTOM_RIGHT
-                      width: 45%
+                      width: 50%
                       height: 44
-                      bg_color: 0xFF3B30
-                      radius: 12
+                      bg_opa: TRANSP
+                      radius: 0
+                      border_width: 0
                       shadow_width: 0
                       on_click:
-                        - lvgl.widget.hide: confirm_overlay
-                        # Hand the work back to do_tile_action as a plain toggle:
-                        # a light, fan or cover then behaves the way it normally
-                        # would, instead of being sent switch.turn_off.
+                        - lvgl.widget.hide: confirm_off_overlay
                         - script.execute:
-                            id: do_tile_action
-                            tile_type: !lambda 'return id(confirm_type);'
-                            tap_action: "toggle"
-                            service: ""
-                            entity_id: !lambda 'return id(confirm_entity);'
-                            param_key: ""
-                            param_val: ""
-                            was_on: true
+                            id: publish_action
+                            action: !lambda 'return id(pending_confirm_event);'
+                        - script.execute:
+                            id: turn_off_tile
+                            tile_type: !lambda 'return id(pending_confirm_type);'
+                            entity_id: !lambda 'return id(pending_confirm_entity);'
                       widgets:
                         - label:
+                            id: confirm_off_accept_label
                             align: CENTER
-                            text: "Turn off"
-                            text_font: headline
-                            text_color: 0xFFFFFF
+                            text: "${UI_TURN_OFF}"
+                            text_font: sublabel_big
+                            text_color: 0xFF3B30
+                            clickable: false
+
 
   pages:
     - id: home_page
@@ -1909,19 +1976,21 @@ lvgl:
                         styles: style_value
                         clickable: false
                   on_short_click:
-                    - script.execute: { id: publish_action, action: "tile1_press" }
                     - script.execute:
-                        id: do_tile_action
+                        id: handle_tile_short_press
+                        action_event: "tile1_press"
+                        title: "${TILE1_TITLE}"
                         tile_type: "${TILE1_TYPE}"
                         tap_action: "${TILE1_TAP_ACTION}"
                         service: "${TILE1_TAP_SERVICE}"
                         entity_id: "${TILE1_ENTITY}"
                         param_key: "${TILE1_TAP_PARAM_KEY}"
                         param_val: "${TILE1_TAP_PARAM_VAL}"
-                        was_on: !lambda |-
+                        state_value: !lambda |-
                           if (std::string("${TILE1_TYPE}") == "cover")
-                            return id(tile1_cover_state).state != "closed";
-                          return std::string(id(ha_state_tile1).state.c_str()) == "on";
+                            return std::string(id(tile1_cover_state).state.c_str());
+                          return std::string(id(ha_state_tile1).state.c_str());
+                        confirm_off: "${TILE1_CONFIRM_OFF}"
                   on_long_press:
                     - script.execute: { id: publish_action, action: "tile1_long_press" }
                     - if:
@@ -2017,19 +2086,21 @@ lvgl:
                         styles: style_value
                         clickable: false
                   on_short_click:
-                    - script.execute: { id: publish_action, action: "tile2_press" }
                     - script.execute:
-                        id: do_tile_action
+                        id: handle_tile_short_press
+                        action_event: "tile2_press"
+                        title: "${TILE2_TITLE}"
                         tile_type: "${TILE2_TYPE}"
                         tap_action: "${TILE2_TAP_ACTION}"
                         service: "${TILE2_TAP_SERVICE}"
                         entity_id: "${TILE2_ENTITY}"
                         param_key: "${TILE2_TAP_PARAM_KEY}"
                         param_val: "${TILE2_TAP_PARAM_VAL}"
-                        was_on: !lambda |-
+                        state_value: !lambda |-
                           if (std::string("${TILE2_TYPE}") == "cover")
-                            return id(tile2_cover_state).state != "closed";
-                          return std::string(id(ha_state_tile2).state.c_str()) == "on";
+                            return std::string(id(tile2_cover_state).state.c_str());
+                          return std::string(id(ha_state_tile2).state.c_str());
+                        confirm_off: "${TILE2_CONFIRM_OFF}"
                   on_long_press:
                     - script.execute: { id: publish_action, action: "tile2_long_press" }
                     - if:
@@ -2125,19 +2196,21 @@ lvgl:
                         styles: style_value
                         clickable: false
                   on_short_click:
-                    - script.execute: { id: publish_action, action: "tile3_press" }
                     - script.execute:
-                        id: do_tile_action
+                        id: handle_tile_short_press
+                        action_event: "tile3_press"
+                        title: "${TILE3_TITLE}"
                         tile_type: "${TILE3_TYPE}"
                         tap_action: "${TILE3_TAP_ACTION}"
                         service: "${TILE3_TAP_SERVICE}"
                         entity_id: "${TILE3_ENTITY}"
                         param_key: "${TILE3_TAP_PARAM_KEY}"
                         param_val: "${TILE3_TAP_PARAM_VAL}"
-                        was_on: !lambda |-
+                        state_value: !lambda |-
                           if (std::string("${TILE3_TYPE}") == "cover")
-                            return id(tile3_cover_state).state != "closed";
-                          return std::string(id(ha_state_tile3).state.c_str()) == "on";
+                            return std::string(id(tile3_cover_state).state.c_str());
+                          return std::string(id(ha_state_tile3).state.c_str());
+                        confirm_off: "${TILE3_CONFIRM_OFF}"
                   on_long_press:
                     - script.execute: { id: publish_action, action: "tile3_long_press" }
                     - if:
@@ -2233,19 +2306,21 @@ lvgl:
                         styles: style_value
                         clickable: false
                   on_short_click:
-                    - script.execute: { id: publish_action, action: "tile4_press" }
                     - script.execute:
-                        id: do_tile_action
+                        id: handle_tile_short_press
+                        action_event: "tile4_press"
+                        title: "${TILE4_TITLE}"
                         tile_type: "${TILE4_TYPE}"
                         tap_action: "${TILE4_TAP_ACTION}"
                         service: "${TILE4_TAP_SERVICE}"
                         entity_id: "${TILE4_ENTITY}"
                         param_key: "${TILE4_TAP_PARAM_KEY}"
                         param_val: "${TILE4_TAP_PARAM_VAL}"
-                        was_on: !lambda |-
+                        state_value: !lambda |-
                           if (std::string("${TILE4_TYPE}") == "cover")
-                            return id(tile4_cover_state).state != "closed";
-                          return std::string(id(ha_state_tile4).state.c_str()) == "on";
+                            return std::string(id(tile4_cover_state).state.c_str());
+                          return std::string(id(ha_state_tile4).state.c_str());
+                        confirm_off: "${TILE4_CONFIRM_OFF}"
                   on_long_press:
                     - script.execute: { id: publish_action, action: "tile4_long_press" }
                     - if:
@@ -2341,19 +2416,21 @@ lvgl:
                         styles: style_value
                         clickable: false
                   on_short_click:
-                    - script.execute: { id: publish_action, action: "tile5_press" }
                     - script.execute:
-                        id: do_tile_action
+                        id: handle_tile_short_press
+                        action_event: "tile5_press"
+                        title: "${TILE5_TITLE}"
                         tile_type: "${TILE5_TYPE}"
                         tap_action: "${TILE5_TAP_ACTION}"
                         service: "${TILE5_TAP_SERVICE}"
                         entity_id: "${TILE5_ENTITY}"
                         param_key: "${TILE5_TAP_PARAM_KEY}"
                         param_val: "${TILE5_TAP_PARAM_VAL}"
-                        was_on: !lambda |-
+                        state_value: !lambda |-
                           if (std::string("${TILE5_TYPE}") == "cover")
-                            return id(tile5_cover_state).state != "closed";
-                          return std::string(id(ha_state_tile5).state.c_str()) == "on";
+                            return std::string(id(tile5_cover_state).state.c_str());
+                          return std::string(id(ha_state_tile5).state.c_str());
+                        confirm_off: "${TILE5_CONFIRM_OFF}"
                   on_long_press:
                     - script.execute: { id: publish_action, action: "tile5_long_press" }
                     - if:
@@ -2449,19 +2526,21 @@ lvgl:
                         styles: style_value
                         clickable: false
                   on_short_click:
-                    - script.execute: { id: publish_action, action: "tile6_press" }
                     - script.execute:
-                        id: do_tile_action
+                        id: handle_tile_short_press
+                        action_event: "tile6_press"
+                        title: "${TILE6_TITLE}"
                         tile_type: "${TILE6_TYPE}"
                         tap_action: "${TILE6_TAP_ACTION}"
                         service: "${TILE6_TAP_SERVICE}"
                         entity_id: "${TILE6_ENTITY}"
                         param_key: "${TILE6_TAP_PARAM_KEY}"
                         param_val: "${TILE6_TAP_PARAM_VAL}"
-                        was_on: !lambda |-
+                        state_value: !lambda |-
                           if (std::string("${TILE6_TYPE}") == "cover")
-                            return id(tile6_cover_state).state != "closed";
-                          return std::string(id(ha_state_tile6).state.c_str()) == "on";
+                            return std::string(id(tile6_cover_state).state.c_str());
+                          return std::string(id(ha_state_tile6).state.c_str());
+                        confirm_off: "${TILE6_CONFIRM_OFF}"
                   on_long_press:
                     - script.execute: { id: publish_action, action: "tile6_long_press" }
                     - if:
@@ -2557,19 +2636,21 @@ lvgl:
                         styles: style_value
                         clickable: false
                   on_short_click:
-                    - script.execute: { id: publish_action, action: "tile7_press" }
                     - script.execute:
-                        id: do_tile_action
+                        id: handle_tile_short_press
+                        action_event: "tile7_press"
+                        title: "${TILE7_TITLE}"
                         tile_type: "${TILE7_TYPE}"
                         tap_action: "${TILE7_TAP_ACTION}"
                         service: "${TILE7_TAP_SERVICE}"
                         entity_id: "${TILE7_ENTITY}"
                         param_key: "${TILE7_TAP_PARAM_KEY}"
                         param_val: "${TILE7_TAP_PARAM_VAL}"
-                        was_on: !lambda |-
+                        state_value: !lambda |-
                           if (std::string("${TILE7_TYPE}") == "cover")
-                            return id(tile7_cover_state).state != "closed";
-                          return std::string(id(ha_state_tile7).state.c_str()) == "on";
+                            return std::string(id(tile7_cover_state).state.c_str());
+                          return std::string(id(ha_state_tile7).state.c_str());
+                        confirm_off: "${TILE7_CONFIRM_OFF}"
                   on_long_press:
                     - script.execute: { id: publish_action, action: "tile7_long_press" }
                     - if:
@@ -2665,19 +2746,21 @@ lvgl:
                         styles: style_value
                         clickable: false
                   on_short_click:
-                    - script.execute: { id: publish_action, action: "tile8_press" }
                     - script.execute:
-                        id: do_tile_action
+                        id: handle_tile_short_press
+                        action_event: "tile8_press"
+                        title: "${TILE8_TITLE}"
                         tile_type: "${TILE8_TYPE}"
                         tap_action: "${TILE8_TAP_ACTION}"
                         service: "${TILE8_TAP_SERVICE}"
                         entity_id: "${TILE8_ENTITY}"
                         param_key: "${TILE8_TAP_PARAM_KEY}"
                         param_val: "${TILE8_TAP_PARAM_VAL}"
-                        was_on: !lambda |-
+                        state_value: !lambda |-
                           if (std::string("${TILE8_TYPE}") == "cover")
-                            return id(tile8_cover_state).state != "closed";
-                          return std::string(id(ha_state_tile8).state.c_str()) == "on";
+                            return std::string(id(tile8_cover_state).state.c_str());
+                          return std::string(id(ha_state_tile8).state.c_str());
+                        confirm_off: "${TILE8_CONFIRM_OFF}"
                   on_long_press:
                     - script.execute: { id: publish_action, action: "tile8_long_press" }
                     - if:
@@ -2773,7 +2856,7 @@ lvgl:
                   id: overlay_title
                   align: TOP_MID
                   y: 10
-                  text: "Light"
+                  text: " "
                   styles: style_room
 
               - label:
@@ -3094,7 +3177,7 @@ lvgl:
                   id: color_detail_title
                   align: TOP_MID
                   y: 16
-                  text: "Light Color"
+                  text: " "
                   styles: style_room
 
               - obj:
@@ -3169,7 +3252,7 @@ lvgl:
                           - label:
                               id: color_tab_label
                               align: CENTER
-                              text: "Color"
+                              text: "${UI_COLOR}"
                               text_font: sublabel_big
                               text_color: 0xFFFFFF
                               clickable: false
@@ -3194,7 +3277,7 @@ lvgl:
                           - label:
                               id: temp_tab_label
                               align: CENTER
-                              text: "Temp."
+                              text: "${UI_TEMPERATURE_SHORT}"
                               text_font: sublabel_big
                               text_color: 0xFFFFFF
                               clickable: false
@@ -3403,7 +3486,7 @@ lvgl:
                     - label:
                         x: 13
                         y: 6
-                        text: "Brightness"
+                        text: "${UI_BRIGHTNESS}"
                         text_font: sublabel
                         text_color: 0xD1D1D6
                         hidden: true
@@ -3536,14 +3619,14 @@ lvgl:
                   id: climate_detail_title
                   align: TOP_MID
                   y: 16
-                  text: "Climate"
+                  text: " "
                   styles: style_room
 
               - label:
                   id: climate_current_label
                   align: TOP_MID
                   y: 42
-                  text: "Current: --"
+                  text: "${UI_CURRENT}: --"
                   text_font: sublabel_big
                   text_color: 0xD1E8FF
                   text_opa: 85%
@@ -3590,7 +3673,7 @@ lvgl:
                   id: climate_set_label
                   align: CENTER
                   y: -16
-                  text: "SET TO"
+                  text: "${UI_SET_TO}"
                   text_font: sublabel_big
                   text_color: 0xFFFFFF
                   text_opa: 68%
@@ -3677,7 +3760,7 @@ lvgl:
                     - label:
                         id: climate_mode_label
                         align: CENTER
-                        text: "Auto"
+                        text: "${UI_CLIMATE_MODE_AUTO}"
                         text_font: sublabel_big
                         text_color: 0xFFFFFF
                         clickable: false
@@ -3828,14 +3911,14 @@ script:
             return value;
           };
           auto label_for = [](const std::string& mode) {
-            if (mode == "off") return std::string("Off");
-            if (mode == "heat") return std::string("Heat");
-            if (mode == "cool") return std::string("Cool");
-            if (mode == "heat_cool") return std::string("Heat/Cool");
-            if (mode == "auto") return std::string("Auto");
-            if (mode == "dry") return std::string("Dry");
-            if (mode == "fan_only") return std::string("Fan");
-            return mode.empty() ? std::string("Auto") : mode;
+            if (mode == "off") return std::string("${UI_CLIMATE_MODE_OFF}");
+            if (mode == "heat") return std::string("${UI_CLIMATE_MODE_HEAT}");
+            if (mode == "cool") return std::string("${UI_CLIMATE_MODE_COOL}");
+            if (mode == "heat_cool") return std::string("${UI_CLIMATE_MODE_HEAT_COOL}");
+            if (mode == "auto") return std::string("${UI_CLIMATE_MODE_AUTO}");
+            if (mode == "dry") return std::string("${UI_CLIMATE_MODE_DRY}");
+            if (mode == "fan_only") return std::string("${UI_CLIMATE_MODE_FAN}");
+            return mode.empty() ? std::string("${UI_CLIMATE_MODE_AUTO}") : mode;
           };
 
           std::string supported = lower(id(active_climate_supported_modes));
@@ -4158,6 +4241,148 @@ script:
                               entity_id: !lambda "return id(active_entity);"
                               position: !lambda "return value;"
 
+  # A confirmed shutdown never uses toggle: the entity might have changed
+  # while the dialog was open. Automation-only mode only publishes the
+  # corresponding *_confirmed_off event and intentionally skips this action.
+  - id: turn_off_tile
+    mode: queued
+    parameters:
+      tile_type: string
+      entity_id: string
+    then:
+      - if:
+          condition:
+            lambda: 'return std::string("${DIRECT_ACTIONS}") == "true";'
+          then:
+            - if:
+                condition:
+                  lambda: 'return tile_type == "light";'
+                then:
+                  - homeassistant.action:
+                      action: light.turn_off
+                      data:
+                        entity_id: !lambda 'return entity_id;'
+                else:
+                  - if:
+                      condition:
+                        lambda: 'return tile_type == "fan";'
+                      then:
+                        - homeassistant.action:
+                            action: fan.turn_off
+                            data:
+                              entity_id: !lambda 'return entity_id;'
+                      else:
+                        - if:
+                            condition:
+                              lambda: 'return tile_type == "switch";'
+                            then:
+                              - homeassistant.action:
+                                  action: switch.turn_off
+                                  data:
+                                    entity_id: !lambda 'return entity_id;'
+                            else:
+                              - if:
+                                  condition:
+                                    lambda: 'return tile_type == "cover";'
+                                  then:
+                                    - homeassistant.action:
+                                        action: cover.close_cover
+                                        data:
+                                          entity_id: !lambda 'return entity_id;'
+
+  # Central short-tap gate. It only asks when the configured action is known
+  # to switch a controllable entity off or close a cover.
+  - id: handle_tile_short_press
+    mode: restart
+    parameters:
+      action_event: string
+      title: string
+      tile_type: string
+      tap_action: string
+      service: string
+      entity_id: string
+      param_key: string
+      param_val: string
+      state_value: string
+      confirm_off: string
+    then:
+      - if:
+          condition:
+            lambda: |-
+              if (confirm_off != "true") return false;
+
+              std::string resolved = tap_action;
+              if (resolved == "auto") {
+                resolved = (tile_type == "scene" || tile_type == "script") ? "activate" : "toggle";
+              }
+
+              bool supported = tile_type == "light" || tile_type == "fan" ||
+                               tile_type == "switch" || tile_type == "cover";
+              bool known_off = tile_type == "cover" ? state_value == "closed" : state_value == "off";
+              bool implicit_toggle = supported && service.empty() &&
+                                     (resolved == "toggle" ||
+                                      (tile_type == "fan" && resolved == "fan_toggle_preset"));
+              bool toggle_service =
+                (tile_type == "light" && service == "light.toggle") ||
+                (tile_type == "fan" && service == "fan.toggle") ||
+                (tile_type == "switch" && service == "switch.toggle") ||
+                (tile_type == "cover" && service == "cover.toggle");
+              bool off_service =
+                (tile_type == "light" && service == "light.turn_off") ||
+                (tile_type == "fan" && service == "fan.turn_off") ||
+                (tile_type == "switch" && service == "switch.turn_off") ||
+                (tile_type == "cover" && service == "cover.close_cover");
+
+              return !known_off && (implicit_toggle || toggle_service || off_service);
+          then:
+            - lambda: |-
+                id(pending_confirm_event) = action_event;
+                const std::string suffix = "_press";
+                if (id(pending_confirm_event).size() >= suffix.size() &&
+                    id(pending_confirm_event).compare(
+                      id(pending_confirm_event).size() - suffix.size(), suffix.size(), suffix) == 0) {
+                  id(pending_confirm_event).replace(
+                    id(pending_confirm_event).size() - suffix.size(), suffix.size(), "_confirmed_off");
+                } else {
+                  id(pending_confirm_event) += "_confirmed_off";
+                }
+                id(pending_confirm_entity) = entity_id;
+                id(pending_confirm_type) = tile_type;
+
+                std::string question = tile_type == "cover"
+                  ? std::string("${UI_CONFIRM_CLOSE_QUESTION}")
+                  : std::string("${UI_CONFIRM_OFF_QUESTION}");
+                const std::string target = title.empty()
+                  ? std::string("${UI_CONFIRM_FALLBACK_TITLE}")
+                  : title;
+                const std::string placeholder = "{title}";
+                size_t pos = 0;
+                while ((pos = question.find(placeholder, pos)) != std::string::npos) {
+                  question.replace(pos, placeholder.size(), target);
+                  pos += target.size();
+                }
+                lv_label_set_text(id(confirm_off_label), question.c_str());
+                lv_label_set_text(
+                  id(confirm_off_accept_label),
+                  tile_type == "cover" ? "${UI_CLOSE}" : "${UI_TURN_OFF}"
+                );
+            - lvgl.widget.show: confirm_off_overlay
+          else:
+            - script.execute:
+                id: publish_action
+                action: !lambda 'return action_event;'
+            - script.execute:
+                id: do_tile_action
+                tile_type: !lambda 'return tile_type;'
+                tap_action: !lambda 'return tap_action;'
+                service: !lambda 'return service;'
+                entity_id: !lambda 'return entity_id;'
+                param_key: !lambda 'return param_key;'
+                param_val: !lambda 'return param_val;'
+                was_on: !lambda |-
+                  if (tile_type == "cover") return state_value != "closed";
+                  return state_value == "on";
+
   # ----------------------------------------------------------
   # do_tile_action
   #
@@ -4210,30 +4435,10 @@ script:
       param_val: string
       was_on: bool
     then:
-      # A confirm_off tile that is currently ON asks first and stops here; the
-      # dialog's "Turn off" button performs the call. Turning ON is never gated.
-      - if:
-          condition:
-            lambda: 'return tap_action == "confirm_off" && was_on && std::string("${DIRECT_ACTIONS}") == "true";'
-          then:
-            - lambda: |-
-                id(confirm_entity) = entity_id;
-                id(confirm_type) = tile_type;
-                std::string title = entity_id;
-                if (entity_id == "${TILE1_ENTITY}") title = "${TILE1_TITLE}";
-                if (entity_id == "${TILE2_ENTITY}") title = "${TILE2_TITLE}";
-                if (entity_id == "${TILE3_ENTITY}") title = "${TILE3_TITLE}";
-                if (entity_id == "${TILE4_ENTITY}") title = "${TILE4_TITLE}";
-                if (entity_id == "${TILE5_ENTITY}") title = "${TILE5_TITLE}";
-                if (entity_id == "${TILE6_ENTITY}") title = "${TILE6_TITLE}";
-                if (entity_id == "${TILE7_ENTITY}") title = "${TILE7_TITLE}";
-                if (entity_id == "${TILE8_ENTITY}") title = "${TILE8_TITLE}";
-                lv_label_set_text(id(confirm_label), ("Turn off " + title + "?\nThis cuts power to the printer.").c_str());
-            - lvgl.widget.show: confirm_overlay
       - if:
           condition:
             lambda: |-
-              return std::string("${DIRECT_ACTIONS}") == "true" && !(tap_action == "confirm_off" && was_on);
+              return std::string("${DIRECT_ACTIONS}") == "true";
           then:
             - lambda: |-
                 ESP_LOGD("tile", "do_tile_action type=%s action=%s service=%s entity=%s key=%s val=%s was_on=%d",
@@ -4270,7 +4475,7 @@ script:
                   - if:
                       condition:
                         lambda: |-
-                          std::string resolved = tap_action == "confirm_off" ? std::string("toggle") : tap_action;
+                          std::string resolved = tap_action;
                           if (resolved == "auto") {
                             if (tile_type == "scene" || tile_type == "script") resolved = "activate";
                             else resolved = "toggle";
@@ -4333,12 +4538,12 @@ script:
                         - if:
                             condition:
                               lambda: |-
-                                std::string resolved = tap_action == "confirm_off" ? std::string("toggle") : tap_action;
+                                std::string resolved = tap_action;
                                 if (resolved == "auto") {
                                   if (tile_type == "scene" || tile_type == "script") resolved = "activate";
                                   else resolved = "toggle";
                                 }
-                                return resolved == "activate";
+                                return resolved == "activate" || resolved == "custom";
                             then:
                               - if:
                                   condition:
@@ -4524,25 +4729,39 @@ script:
             if (id(active_climate_target_x10) < id(active_climate_min_x10)) id(active_climate_target_x10) = id(active_climate_min_x10);
             if (id(active_climate_target_x10) > id(active_climate_max_x10)) id(active_climate_target_x10) = id(active_climate_max_x10);
             id(active_climate_humidity) = isnan(climate_humidity) ? -1 : (int) lround(climate_humidity);
-            id(active_climate_mode) = climate_mode.empty() ? std::string("Auto") : climate_mode;
+            id(active_climate_mode) = climate_mode.empty() ? std::string("auto") : climate_mode;
             id(active_climate_supported_modes) = climate_supported_modes;
+
+            auto label_for_climate_mode = [](std::string mode) {
+              for (char &c : mode) {
+                if (c >= 'A' && c <= 'Z') c = (char) (c - 'A' + 'a');
+              }
+              if (mode == "off") return std::string("${UI_CLIMATE_MODE_OFF}");
+              if (mode == "heat") return std::string("${UI_CLIMATE_MODE_HEAT}");
+              if (mode == "cool") return std::string("${UI_CLIMATE_MODE_COOL}");
+              if (mode == "heat_cool") return std::string("${UI_CLIMATE_MODE_HEAT_COOL}");
+              if (mode == "auto") return std::string("${UI_CLIMATE_MODE_AUTO}");
+              if (mode == "dry") return std::string("${UI_CLIMATE_MODE_DRY}");
+              if (mode == "fan_only") return std::string("${UI_CLIMATE_MODE_FAN}");
+              return mode.empty() ? std::string("${UI_CLIMATE_MODE_AUTO}") : mode;
+            };
 
             lv_label_set_text(id(climate_detail_title), title.c_str());
 
-            char current_buf[48];
+            char current_buf[72];
             if (isnan(climate_current_temperature)) {
-              snprintf(current_buf, sizeof(current_buf), "Current: --");
+              snprintf(current_buf, sizeof(current_buf), "${UI_CURRENT}: --");
             } else if (id(active_climate_humidity) >= 0) {
-              snprintf(current_buf, sizeof(current_buf), "Current: %.1f° - Humidity: %d %%", climate_current_temperature, id(active_climate_humidity));
+              snprintf(current_buf, sizeof(current_buf), "${UI_CURRENT}: %.1f° - ${UI_HUMIDITY}: %d %%", climate_current_temperature, id(active_climate_humidity));
             } else {
-              snprintf(current_buf, sizeof(current_buf), "Current: %.1f°", climate_current_temperature);
+              snprintf(current_buf, sizeof(current_buf), "${UI_CURRENT}: %.1f°", climate_current_temperature);
             }
             lv_label_set_text(id(climate_current_label), current_buf);
 
             char target_buf[16];
             snprintf(target_buf, sizeof(target_buf), "%.1f°", id(active_climate_target_x10) / 10.0f);
             lv_label_set_text(id(climate_target_label), target_buf);
-            lv_label_set_text(id(climate_mode_label), id(active_climate_mode).c_str());
+            lv_label_set_text(id(climate_mode_label), label_for_climate_mode(id(active_climate_mode)).c_str());
 
             lv_arc_set_range(id(climate_arc), id(active_climate_min_x10), id(active_climate_max_x10));
             lv_arc_set_value(id(climate_arc), id(active_climate_target_x10));
@@ -4892,14 +5111,14 @@ script:
               for (char &c : mode) {
                 if (c >= 'A' && c <= 'Z') c = (char) (c - 'A' + 'a');
               }
-              if (mode == "off") return std::string("Off");
-              if (mode == "heat") return std::string("Heat");
-              if (mode == "cool") return std::string("Cool");
-              if (mode == "heat_cool") return std::string("Heat/Cool");
-              if (mode == "auto") return std::string("Auto");
-              if (mode == "dry") return std::string("Dry");
-              if (mode == "fan_only") return std::string("Fan");
-              return mode.empty() ? std::string("Auto") : mode;
+              if (mode == "off") return std::string("${UI_CLIMATE_MODE_OFF}");
+              if (mode == "heat") return std::string("${UI_CLIMATE_MODE_HEAT}");
+              if (mode == "cool") return std::string("${UI_CLIMATE_MODE_COOL}");
+              if (mode == "heat_cool") return std::string("${UI_CLIMATE_MODE_HEAT_COOL}");
+              if (mode == "auto") return std::string("${UI_CLIMATE_MODE_AUTO}");
+              if (mode == "dry") return std::string("${UI_CLIMATE_MODE_DRY}");
+              if (mode == "fan_only") return std::string("${UI_CLIMATE_MODE_FAN}");
+              return mode.empty() ? std::string("${UI_CLIMATE_MODE_AUTO}") : mode;
             };
             // Re-tint the open overlay's sliders when the light's colour changes in HA.
             auto sync_open_rgb = [&](const std::string& entity, const std::string& rgb) {
@@ -4951,13 +5170,13 @@ script:
               if (target_x10 > id(active_climate_max_x10)) target_x10 = id(active_climate_max_x10);
               id(active_climate_target_x10) = target_x10;
 
-              char current_buf[48];
+              char current_buf[72];
               if (isnan(current_temperature)) {
-                snprintf(current_buf, sizeof(current_buf), "Current: --");
+                snprintf(current_buf, sizeof(current_buf), "${UI_CURRENT}: --");
               } else if (id(active_climate_humidity) >= 0) {
-                snprintf(current_buf, sizeof(current_buf), "Current: %.1f° - Humidity: %d %%", current_temperature, id(active_climate_humidity));
+                snprintf(current_buf, sizeof(current_buf), "${UI_CURRENT}: %.1f° - ${UI_HUMIDITY}: %d %%", current_temperature, id(active_climate_humidity));
               } else {
-                snprintf(current_buf, sizeof(current_buf), "Current: %.1f°", current_temperature);
+                snprintf(current_buf, sizeof(current_buf), "${UI_CURRENT}: %.1f°", current_temperature);
               }
               lv_label_set_text(id(climate_current_label), current_buf);
 
