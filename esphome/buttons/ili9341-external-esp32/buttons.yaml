@@ -45,7 +45,7 @@
 # - Backlight PWM: GPIO4
 #
 # What you must adapt before flashing
-# 1) Secrets: api.encryption.key, ota.password, WiFi credentials (prefer secrets.yaml)
+# 1) Secrets: api.encryption.key and WiFi credentials (prefer secrets.yaml)
 # 2) Wiring: ensure your display + touch wiring matches the pinout above
 # 3) BTN*_ENTITY: Home Assistant entity IDs you want to control/mirror
 # 4) Touch calibration + transform:
@@ -79,9 +79,9 @@ substitutions:
   DIRECT_ACTIONS: "true"
 
   # The Material Design Icons font is downloaded at build time, so this file
-  # is self-contained and needs no local fonts/ folder. Pinned to a release
-  # tag on purpose: the icon values below are raw codepoints, and an unpinned
-  # font bump could quietly change which icon a button shows.
+  # is self-contained and needs no fonts/ folder beside it. It is pinned to a
+  # release tag on purpose: the icon values below are raw codepoints, and an
+  # unpinned font bump could quietly change which icon a button shows.
   MDI_FONT_URL: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/v7.4.47/fonts/materialdesignicons-webfont.ttf"
 
   # Button 1
@@ -112,6 +112,7 @@ substitutions:
 # ============================================================
 
 esphome:
+  min_version: 2026.9.0
   name: smartdisplay
   friendly_name: SmartDisplay
   on_boot:
@@ -129,13 +130,14 @@ logger:
 # Credentials are loaded from secrets.yaml — copy secrets.yaml.example to secrets.yaml and fill in your values.
 api:
   encryption:
-    key: !secret api_encryption_key
+    key: !secret smartdisplay_api_key
 
 ota:
   - platform: esphome
-    # No password: a bare 'encryption:' inherits the api encryption key, which
-    # authenticates the uploader and saves ~3.5 KB of flash. Switching a device
-    # that was flashed with a password requires one serial install.
+    id: esphome_ota
+    # A bare 'encryption:' inherits the api encryption key, which authenticates
+    # the uploader; ESPHome 2026.9 warns that a separate ota password costs
+    # ~3.5 KB of flash and 60 bytes of RAM for no added protection.
     encryption:
 
 wifi:
@@ -143,7 +145,7 @@ wifi:
   password: !secret wifi_password
   ap:
     ssid: "Smartdisplay Fallback Hotspot"
-    password: !secret ap_fallback_password
+    password: !secret wifi_ap_password
 
 captive_portal:
 
@@ -194,8 +196,8 @@ font:
        'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
        'u', 'v', 'w', 'x', 'y', 'z','å', 'Ä', 'ä', 'Ö', 'ö', 'Ü', 'ü', '/']
 
-  # Material Design Icons (MDI, Apache 2.0) — downloaded at build time from the
-  # pinned MDI_FONT_URL; no local copy of the .ttf is needed.
+  # Material Design Icons (MDI, Apache 2.0) — downloaded at build time from
+  # the pinned MDI_FONT_URL; no local copy of the .ttf is needed.
   # Source: https://github.com/Templarian/MaterialDesign-Webfont
   - file: "${MDI_FONT_URL}"
     id: materialdesign_icons
