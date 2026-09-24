@@ -4,10 +4,8 @@
 # Resolution: configurable via ORIENTATION substitutions (landscape 320×240 default)
 #
 # Target hardware
-# - Cheap Yellow Display (ESP32-2432S028), USB-C + Micro-USB revision
-# - Built-in ILI9342 display, natively landscape 320x240
-#   (the Micro-USB-only board has an ILI9341 240x320 panel instead — that one
-#   needs ../cyd-2432s028/home-like.yaml, whose rotation/touch values differ)
+# - Cheap Yellow Display (ESP32-2432S028 or compatible)
+# - Built-in ILI9341 or ILI9342 display (select one hardware/orientation preset)
 # - Built-in XPT2046 touchscreen
 #
 # What this config does
@@ -22,7 +20,7 @@
 # The layout is inspired by common modern smart home UIs.
 #
 # How to customize
-# 1) Edit the TILE1..TILE8 blocks below.
+# 1) Edit the TILE1..TILE6 blocks below.
 # 2) If you change icons, update the FONT GLYPHS block in the substitutions below.
 #    Each glyph must appear exactly once — same icon on multiple tiles is fine, just list it once.
 # 3) Background images are downloaded at build time (see REMOTE ASSETS in the
@@ -47,7 +45,7 @@
 #   light -> brightness, fan -> percentage/preset, scene/script -> text
 #
 # What you must adapt before flashing
-# 1) Secrets: api.encryption.key, ota.password, WiFi credentials (prefer secrets.yaml)
+# 1) Secrets: API/OTA encryption key and WiFi credentials (in secrets.yaml)
 # 2) Pins, touch calibration and transform if your CYD variant differs
 # 3) TILE*_ENTITY / TILE*_STATE_ENTITY: Home Assistant entity IDs you want to control/mirror
 # 4) Orientation + touch calibration:
@@ -59,7 +57,7 @@
 substitutions:
 
   DIRECT_ACTIONS: "true"                           # true = call Home Assistant services directly, false = only emit action events
-  ROOM_NAME: "Printers"                              # room name shown in the top-left header
+  ROOM_NAME: "Printers"                            # room name shown in the top-left header
   TIME_24H: "false"                                # true = 24h format, false = 12h format
 
   ## DIM settings
@@ -83,6 +81,7 @@ substitutions:
   UI_CANCEL: "Cancel"
   UI_TURN_OFF: "Turn off"
   UI_CLOSE: "Close"
+  UI_OFFLINE: "Offline"
   UI_COLOR: "Color"
   UI_TEMPERATURE_SHORT: "Temp."
   UI_BRIGHTNESS: "Brightness"
@@ -99,29 +98,16 @@ substitutions:
 
   # ============================================================
   # REMOTE ASSETS
-  # Fonts and images are downloaded at build time, so this file is
-  # self-contained: nothing but the YAML is needed to compile it — e.g.
-  # in the ESPHome Device Builder add-on under Home Assistant, which has
-  # no access to this repository's fonts/ and images/ folders.
-  # ASSET_BASE is pinned to the same upstream commit as upstream's own
-  # config, so a wallpaper change upstream never reaches this panel
-  # unannounced. MDI_FONT_URL is pinned to a
-  # release tag on purpose: the MDI_GLYPH_* values are raw codepoints, and an
-  # unpinned font bump could quietly change which icon a tile shows.
+  # The icon font and the background images are downloaded at build time,
+  # so no fonts/ or images/ folder is needed beside this YAML. A matching
+  # secrets.yaml is still required. This matters
+  # most under the ESPHome Device Builder add-on in Home Assistant, which
+  # cannot see this repository.
+  # ASSET_BASE is pinned to a repository commit. MDI_FONT_URL is
+  # pinned to a release tag on purpose: the MDI_GLYPH_* values below are
+  # raw codepoints, and an unpinned font bump could quietly change which
+  # icon a tile shows.
   # ============================================================
-  # ----- board -----
-  # Which ESP32-2432S028 revision this is. The board model carries the display
-  # pins, data rate and strapping-pin flags, so none of those appear below:
-  #   micro-USB only:     ESP32-2432S028        ILI9341, native portrait 240x320
-  #   USB-C + micro-USB:  ESP32-2432S028-7789   ST7789V
-  #                       ESP32-2432S028-9342   ILI9342, native landscape 320x240
-  # The rotation and touch values further down are per-revision too — see the
-  # table in CLAUDE.md before moving this config to a different board.
-  DISPLAY_MODEL: "ESP32-2432S028-9342"
-  # Neither the ILI9342 chip model nor this board model declares a colour order,
-  # so both inherit mipi_spi's BGR default, which draws red as blue here.
-  DISPLAY_COLOR_ORDER: "RGB"
-
   ASSET_BASE: "https://raw.githubusercontent.com/akuehlewind/ESPHome-touch-display-mount/9ffa5dfddf695150ad0388f5f5e2bcf786772195/esphome/home-like"
   MDI_FONT_URL: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/v7.4.47/fonts/materialdesignicons-webfont.ttf"
 
@@ -145,19 +131,18 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE1_ENTITY: "switch.h2c_plug"                 # main Home Assistant entity for this tile
-  TILE1_STATE_ENTITY: "switch.h2c_plug"           # entity used for active/inactive state styling  
+  TILE1_ENTITY: "switch.h2c_plug"                  # main Home Assistant entity for this tile
+  TILE1_STATE_ENTITY: "switch.h2c_plug"            # entity used for active/inactive state styling
   TILE1_TITLE: "H2C Plug"                          # tile title shown in the UI
   TILE1_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE1_TYPE: "switch"                                # tile type: light | fan | switch | scene | script | cover | climate
+  TILE1_TYPE: "switch"                             # tile type: light | fan | switch | scene | script | cover | climate
   TILE1_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE1_CONFIRM_OFF: "true"                        # true = confirm before an off/close short-tap action
-  TILE1_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE1_CONFIRM_OFF: "true"                       # true = confirm before an off/close short-tap action
+  TILE1_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE1_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE1_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE1_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
-  TILE1_AVAILABILITY_ENTITY: "${TILE1_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
-                                                   # leave as the tile's own entity to disable the check
+  TILE1_AVAILABILITY_ENTITY: "${TILE1_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
 
   # --- colors ---
   TILE1_CIRCLE_ACTIVE_COLOR: "0x30D158"            # icon circle color when active
@@ -172,9 +157,9 @@ substitutions:
   TILE1_VALUE_DISABLED_COLOR: "0xFFFFFF"           # value color when inactive
 
   # --- advanced settings ---
-  TILE1_TAP_SERVICE: ""                  # optional service override, e.g. fan.toggle
-  TILE1_TAP_PARAM_KEY: ""               # optional extra service parameter key
-  TILE1_TAP_PARAM_VAL: ""                      # optional extra service parameter value
+  TILE1_TAP_SERVICE: ""                            # optional service override, e.g. light.toggle
+  TILE1_TAP_PARAM_KEY: ""                          # optional extra service parameter key
+  TILE1_TAP_PARAM_VAL: ""                          # optional extra service parameter value
   # if LONGPRESS = slider:
   TILE1_LONGPRESS_SLIDER: "auto"                   # slider type: auto | brightness | percentage | cover_position
   TILE1_LONGPRESS_OFF_VALUE: "0"                   # initial slider value when entity is off
@@ -196,19 +181,18 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE2_ENTITY: "light.h2c_h2c_31b8ap630100072_chamber_light"                       # main Home Assistant entity for this tile
-  TILE2_STATE_ENTITY: "light.h2c_h2c_31b8ap630100072_chamber_light"                 # entity used for active/inactive state styling
-  TILE2_TITLE: "H2C Light"                              # tile title shown in the UI
+  TILE2_ENTITY: "light.h2c_h2c_31b8ap630100072_chamber_light" # main Home Assistant entity for this tile
+  TILE2_STATE_ENTITY: "light.h2c_h2c_31b8ap630100072_chamber_light" # entity used for active/inactive state styling
+  TILE2_TITLE: "H2C Light"                         # tile title shown in the UI
   TILE2_ICON: "\U000F042B"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE2_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE2_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE2_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
-  TILE2_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE2_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
+  TILE2_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE2_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE2_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE2_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
-  TILE2_AVAILABILITY_ENTITY: "binary_sensor.h2c_h2c_31b8ap630100072_online"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
-                                                   # leave as the tile's own entity to disable the check
+  TILE2_AVAILABILITY_ENTITY: "binary_sensor.h2c_h2c_31b8ap630100072_online" # must be "on" for the tile to be live; the tile's own entity disables the check
 
   # --- colors ---
   TILE2_CIRCLE_ACTIVE_COLOR: "0xFEC600"            # icon circle color when active
@@ -247,19 +231,18 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE3_ENTITY: "switch.x1c_plug"                 # main Home Assistant entity for this tile
-  TILE3_STATE_ENTITY: "switch.x1c_plug"           # entity used for active/inactive state styling  
+  TILE3_ENTITY: "switch.x1c_plug"                  # main Home Assistant entity for this tile
+  TILE3_STATE_ENTITY: "switch.x1c_plug"            # entity used for active/inactive state styling
   TILE3_TITLE: "X1C Plug"                          # tile title shown in the UI
   TILE3_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE3_TYPE: "switch"                                # tile type: light | fan | switch | scene | script | cover | climate
+  TILE3_TYPE: "switch"                             # tile type: light | fan | switch | scene | script | cover | climate
   TILE3_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE3_CONFIRM_OFF: "true"                        # true = confirm before an off/close short-tap action
-  TILE3_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE3_CONFIRM_OFF: "true"                       # true = confirm before an off/close short-tap action
+  TILE3_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE3_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE3_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE3_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
-  TILE3_AVAILABILITY_ENTITY: "${TILE3_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
-                                                   # leave as the tile's own entity to disable the check
+  TILE3_AVAILABILITY_ENTITY: "${TILE3_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
 
   # --- colors ---
   TILE3_CIRCLE_ACTIVE_COLOR: "0x30D158"            # icon circle color when active
@@ -274,9 +257,9 @@ substitutions:
   TILE3_VALUE_DISABLED_COLOR: "0xFFFFFF"           # value color when inactive
 
   # --- advanced settings ---
-  TILE3_TAP_SERVICE: ""                  # optional service override, e.g. fan.toggle
-  TILE3_TAP_PARAM_KEY: ""               # optional extra service parameter key
-  TILE3_TAP_PARAM_VAL: ""                      # optional extra service parameter value
+  TILE3_TAP_SERVICE: ""                            # optional service override, e.g. light.toggle
+  TILE3_TAP_PARAM_KEY: ""                          # optional extra service parameter key
+  TILE3_TAP_PARAM_VAL: ""                          # optional extra service parameter value
   # if LONGPRESS = slider:
   TILE3_LONGPRESS_SLIDER: "auto"                   # slider type: auto | brightness | percentage | cover_position
   TILE3_LONGPRESS_OFF_VALUE: "0"                   # initial slider value when entity is off
@@ -298,19 +281,18 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE4_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light"                    # main Home Assistant entity for this tile
-  TILE4_STATE_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light"              # entity used for active/inactive state styling
-  TILE4_TITLE: "X1C Light"                           # tile title shown in the UI
+  TILE4_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light" # main Home Assistant entity for this tile
+  TILE4_STATE_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light" # entity used for active/inactive state styling
+  TILE4_TITLE: "X1C Light"                         # tile title shown in the UI
   TILE4_ICON: "\U000F042B"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE4_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE4_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE4_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
-  TILE4_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE4_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
+  TILE4_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE4_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE4_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE4_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
-  TILE4_AVAILABILITY_ENTITY: "binary_sensor.x1c_x1c_00m09d460801484_online"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
-                                                   # leave as the tile's own entity to disable the check
+  TILE4_AVAILABILITY_ENTITY: "binary_sensor.x1c_x1c_00m09d460801484_online" # must be "on" for the tile to be live; the tile's own entity disables the check
 
   # --- colors ---
   TILE4_CIRCLE_ACTIVE_COLOR: "0xFEC600"            # icon circle color when active
@@ -349,19 +331,18 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE5_ENTITY: "fan.bento_box"                # main Home Assistant entity for this tile
-  TILE5_STATE_ENTITY: "fan.bento_box"          # entity used for active/inactive state styling
-  TILE5_TITLE: "Bento Box"                             # tile title shown in the UI
+  TILE5_ENTITY: "fan.bento_box"                    # main Home Assistant entity for this tile
+  TILE5_STATE_ENTITY: "fan.bento_box"              # entity used for active/inactive state styling
+  TILE5_TITLE: "Bento Box"                         # tile title shown in the UI
   TILE5_ICON: "\U000F0D43"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE5_TYPE: "fan"                              # tile type: light | fan | switch | scene | script | cover | climate
+  TILE5_TYPE: "fan"                                # tile type: light | fan | switch | scene | script | cover | climate
   TILE5_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE5_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
-  TILE5_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE5_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
+  TILE5_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE5_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
-  TILE5_LABEL_OFF: "Off"                        # text shown when entity is off (closed)
-  TILE5_LABEL_ON: "On"                           # text shown when entity is on (open)
-  TILE5_AVAILABILITY_ENTITY: "${TILE5_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
-                                                   # leave as the tile's own entity to disable the check
+  TILE5_LABEL_OFF: "Off"                           # text shown when entity is off
+  TILE5_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
+  TILE5_AVAILABILITY_ENTITY: "${TILE5_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
 
   # --- colors ---
   TILE5_CIRCLE_ACTIVE_COLOR: "0x00C5EC"            # icon circle color when active
@@ -400,19 +381,18 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE6_ENTITY: "fan.chamber_heater"                 # main Home Assistant entity for this tile
-  TILE6_STATE_ENTITY: "fan.chamber_heater"           # entity used for active/inactive state styling  
-  TILE6_TITLE: "Heater"                          # tile title shown in the UI
+  TILE6_ENTITY: "fan.chamber_heater"               # main Home Assistant entity for this tile
+  TILE6_STATE_ENTITY: "fan.chamber_heater"         # entity used for active/inactive state styling
+  TILE6_TITLE: "Heater"                            # tile title shown in the UI
   TILE6_ICON: "\U000F1A45"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE6_TYPE: "fan"                                # tile type: light | fan | switch | scene | script | cover | climate
   TILE6_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE6_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
-  TILE6_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE6_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
+  TILE6_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE6_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE6_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE6_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
-  TILE6_AVAILABILITY_ENTITY: "${TILE6_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
-                                                   # leave as the tile's own entity to disable the check
+  TILE6_AVAILABILITY_ENTITY: "${TILE6_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
 
   # --- colors ---
   TILE6_CIRCLE_ACTIVE_COLOR: "0xFF8C00"            # icon circle color when active
@@ -427,9 +407,9 @@ substitutions:
   TILE6_VALUE_DISABLED_COLOR: "0xFFFFFF"           # value color when inactive
 
   # --- advanced settings ---
-  TILE6_TAP_SERVICE: ""                  # optional service override, e.g. fan.toggle
-  TILE6_TAP_PARAM_KEY: ""               # optional extra service parameter key
-  TILE6_TAP_PARAM_VAL: ""                      # optional extra service parameter value
+  TILE6_TAP_SERVICE: ""                            # optional service override, e.g. light.toggle
+  TILE6_TAP_PARAM_KEY: ""                          # optional extra service parameter key
+  TILE6_TAP_PARAM_VAL: ""                          # optional extra service parameter value
   # if LONGPRESS = slider:
   TILE6_LONGPRESS_SLIDER: "auto"                   # slider type: auto | brightness | percentage | cover_position
   TILE6_LONGPRESS_OFF_VALUE: "0"                   # initial slider value when entity is off
@@ -452,18 +432,17 @@ substitutions:
 
   # --- basic settings ---
   TILE7_ENTITY: "fan.window_exhaust"               # main Home Assistant entity for this tile
-  TILE7_STATE_ENTITY: "fan.window_exhaust"         # entity used for active/inactive state styling  
+  TILE7_STATE_ENTITY: "fan.window_exhaust"         # entity used for active/inactive state styling
   TILE7_TITLE: "Exhaust"                           # tile title shown in the UI
   TILE7_ICON: "\U000F11DC"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE7_TYPE: "fan"                              # tile type: light | fan | switch | scene | script | cover | climate
+  TILE7_TYPE: "fan"                                # tile type: light | fan | switch | scene | script | cover | climate
   TILE7_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE7_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
-  TILE7_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE7_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
+  TILE7_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE7_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE7_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE7_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
-  TILE7_AVAILABILITY_ENTITY: "${TILE7_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
-                                                   # leave as the tile's own entity to disable the check
+  TILE7_AVAILABILITY_ENTITY: "${TILE7_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
 
   # --- colors ---
   TILE7_CIRCLE_ACTIVE_COLOR: "0x00C5EC"            # icon circle color when active
@@ -502,19 +481,18 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE8_ENTITY: "light.riser_lights"                 # main Home Assistant entity for this tile
-  TILE8_STATE_ENTITY: "light.riser_lights"           # entity used for active/inactive state styling
-  TILE8_TITLE: "Riser"                        # tile title shown in the UI
+  TILE8_ENTITY: "light.riser_lights"               # main Home Assistant entity for this tile
+  TILE8_STATE_ENTITY: "light.riser_lights"         # entity used for active/inactive state styling
+  TILE8_TITLE: "Riser"                             # tile title shown in the UI
   TILE8_ICON: "\U000F1051"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE8_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE8_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE8_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
+  TILE8_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
   TILE8_LONGPRESS: "slider"                        # long press mode: none | slider | action
   TILE8_VALUE_MODE: "auto"                         # value mode: auto | brightness | percentage | preset | text
   TILE8_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE8_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
-  TILE8_AVAILABILITY_ENTITY: "${TILE8_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online sensor);
-                                                   # leave as the tile's own entity to disable the check
+  TILE8_AVAILABILITY_ENTITY: "${TILE8_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
 
   # --- colors ---
   TILE8_CIRCLE_ACTIVE_COLOR: "0xFEC600"            # icon circle color when active
@@ -548,101 +526,240 @@ substitutions:
   TILE8_CLIMATE_HUMIDITY_ATTRIBUTE: "current_humidity"         # HA attribute for humidity; leave as-is if unavailable
 
   # ============================================================
-  # ORIENTATION / LAYOUT
-  # This file is laid out for LANDSCAPE with 8 tiles in a 4x2 grid. Portrait
-  # (240x320) would only fit 2 columns, so it would need a different grid and
-  # is not offered here — see ../jc3248w535/home-like.yaml for a portrait 2x4.
-  #
-  # LVGL_ROTATION (0/90/180/270) drives the rotation — LVGL rotates both the
-  # display output and the touch coordinates (ESPHome 2026.4+). The physical
-  # panel is always driven at its native 320x240 (see display:).
-  #
-  # This panel is natively LANDSCAPE and its native top edge faces the USB side,
-  # so LVGL_ROTATION = ORIENTATION + 180 here, where the ILI9341 config uses
-  # ORIENTATION + 90. ORIENTATION only names where the USB connector points; it
-  # is a label, nothing reads it.
+  # DISPLAY / ORIENTATION PRESETS
+  # Uncomment exactly ONE complete preset, comment out the others.
+  # ILI9341 / 0 degrees is enabled by default. USB connectors alone do
+  # not reliably identify the display controller.
+  # ILI9342 values are based on contributor hardware tests.
+  # Touch calibration values (TOUCH_CAL_*) are device-specific —
+  # portrait/flipped values are approximate and may need tuning.
+  # Tile content layout:
+  #   Landscape — icon left, title + value to its right
+  #   Portrait  — icon centered on top, title + value stacked below
   # ============================================================
 
-  # ----- touch (both orientations) -----
-  # A fixed correction for the panel's native landscape frame, NOT a
-  # per-orientation rotation: LVGL rotates touch coordinates itself. swap_xy
-  # holds for every preset; the mirrors do not, so they live with the rotation
-  # below. Calibration is device-specific — retune it, not the transform, if
-  # taps are offset rather than rotated.
+  # ----- ILI9341 / 0° — Landscape 320×240 (default, USB on right) -----
+  # DISPLAY_MODEL: "ILI9341"
+  # DISPLAY_COLOR_ORDER: "BGR"
+  # DISPLAY_DATA_RATE: "10MHz"
+  # ORIENTATION: "0"
+  # LVGL_ROTATION: "90"
+  # TOUCH_SWAP_XY: "false"
+  # TOUCH_MIRROR_X: "true"
+  # TOUCH_MIRROR_Y: "false"
+  # TOUCH_CAL_X_MIN: "280"
+  # TOUCH_CAL_X_MAX: "3860"
+  # TOUCH_CAL_Y_MIN: "340"
+  # TOUCH_CAL_Y_MAX: "3860"
+  # DISPLAY_W: "320"
+  # DISPLAY_H: "240"
+  # GRID_COL1_X: "9"
+  # GRID_COL2_X: "164"
+  # GRID_ROW1_Y: "54"
+  # GRID_ROW2_Y: "114"
+  # GRID_ROW3_Y: "174"
+  # TILE_W: "147"
+  # TILE_H: "52"
+  # HEADER_Y: "14"
+  # OVERLAY_SLIDER_W: "96"
+  # OVERLAY_SLIDER_H: "160"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background.png"
+  # TILE_ICON_X: "0"
+  # TILE_ICON_Y: "0"
+  # TILE_TITLE_X: "48"
+  # TILE_TITLE_Y: "4"
+  # TILE_VALUE_X: "48"
+  # TILE_VALUE_Y: "18"
+
+  # ----- ILI9341 / 90° — Portrait 240×320 (USB on bottom) -----
+  # DISPLAY_MODEL: "ILI9341"
+  # DISPLAY_COLOR_ORDER: "BGR"
+  # DISPLAY_DATA_RATE: "10MHz"
+  # ORIENTATION: "90"
+  # LVGL_ROTATION: "180"
+  # TOUCH_SWAP_XY: "false"
+  # TOUCH_MIRROR_X: "true"
+  # TOUCH_MIRROR_Y: "false"
+  # TOUCH_CAL_X_MIN: "280"
+  # TOUCH_CAL_X_MAX: "3860"
+  # TOUCH_CAL_Y_MIN: "340"
+  # TOUCH_CAL_Y_MAX: "3860"
+  # DISPLAY_W: "240"
+  # DISPLAY_H: "320"
+  # GRID_COL1_X: "6"
+  # GRID_COL2_X: "123"
+  # GRID_ROW1_Y: "54"
+  # GRID_ROW2_Y: "142"
+  # GRID_ROW3_Y: "230"
+  # TILE_W: "111"
+  # TILE_H: "80"
+  # HEADER_Y: "14"
+  # OVERLAY_SLIDER_W: "96"
+  # OVERLAY_SLIDER_H: "200"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background_90.png"
+  # TILE_ICON_X: "0"
+  # TILE_ICON_Y: "0"
+  # TILE_TITLE_X: "4"
+  # TILE_TITLE_Y: "38"
+  # TILE_VALUE_X: "4"
+  # TILE_VALUE_Y: "52"
+
+  # ----- ILI9341 / 180° — Landscape flipped 320×240 (USB on left) -----
+  # DISPLAY_MODEL: "ILI9341"
+  # DISPLAY_COLOR_ORDER: "BGR"
+  # DISPLAY_DATA_RATE: "10MHz"
+  # ORIENTATION: "180"
+  # LVGL_ROTATION: "270"
+  # TOUCH_SWAP_XY: "false"
+  # TOUCH_MIRROR_X: "true"
+  # TOUCH_MIRROR_Y: "false"
+  # TOUCH_CAL_X_MIN: "280"
+  # TOUCH_CAL_X_MAX: "3860"
+  # TOUCH_CAL_Y_MIN: "340"
+  # TOUCH_CAL_Y_MAX: "3860"
+  # DISPLAY_W: "320"
+  # DISPLAY_H: "240"
+  # GRID_COL1_X: "9"
+  # GRID_COL2_X: "164"
+  # GRID_ROW1_Y: "54"
+  # GRID_ROW2_Y: "114"
+  # GRID_ROW3_Y: "174"
+  # TILE_W: "147"
+  # TILE_H: "52"
+  # HEADER_Y: "14"
+  # OVERLAY_SLIDER_W: "96"
+  # OVERLAY_SLIDER_H: "160"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background.png"
+  # TILE_ICON_X: "0"
+  # TILE_ICON_Y: "0"
+  # TILE_TITLE_X: "48"
+  # TILE_TITLE_Y: "4"
+  # TILE_VALUE_X: "48"
+  # TILE_VALUE_Y: "18"
+
+  # ----- ILI9341 / 270° — Portrait flipped 240×320 (USB on top) -----
+  # DISPLAY_MODEL: "ILI9341"
+  # DISPLAY_COLOR_ORDER: "BGR"
+  # DISPLAY_DATA_RATE: "10MHz"
+  # ORIENTATION: "270"
+  # LVGL_ROTATION: "0"
+  # TOUCH_SWAP_XY: "false"
+  # TOUCH_MIRROR_X: "true"
+  # TOUCH_MIRROR_Y: "false"
+  # TOUCH_CAL_X_MIN: "280"
+  # TOUCH_CAL_X_MAX: "3860"
+  # TOUCH_CAL_Y_MIN: "340"
+  # TOUCH_CAL_Y_MAX: "3860"
+  # DISPLAY_W: "240"
+  # DISPLAY_H: "320"
+  # GRID_COL1_X: "6"
+  # GRID_COL2_X: "123"
+  # GRID_ROW1_Y: "54"
+  # GRID_ROW2_Y: "142"
+  # GRID_ROW3_Y: "230"
+  # TILE_W: "111"
+  # TILE_H: "80"
+  # HEADER_Y: "14"
+  # OVERLAY_SLIDER_W: "96"
+  # OVERLAY_SLIDER_H: "200"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background_90.png"
+  # TILE_ICON_X: "0"
+  # TILE_ICON_Y: "0"
+  # TILE_TITLE_X: "4"
+  # TILE_TITLE_Y: "38"
+  # TILE_VALUE_X: "4"
+  # TILE_VALUE_Y: "52"
+
+  # ----- ILI9342 / 0° — Landscape 320×240 (USB on right) -----
+  # DISPLAY_MODEL: "ILI9342"
+  # DISPLAY_COLOR_ORDER: "RGB"
+  # DISPLAY_DATA_RATE: "40MHz"
+  # ORIENTATION: "0"
+  # LVGL_ROTATION: "180"
+  # TOUCH_SWAP_XY: "true"
+  # TOUCH_MIRROR_X: "true"
+  # TOUCH_MIRROR_Y: "true"
+  # TOUCH_CAL_X_MIN: "340"
+  # TOUCH_CAL_X_MAX: "3860"
+  # TOUCH_CAL_Y_MIN: "280"
+  # TOUCH_CAL_Y_MAX: "3860"
+  # DISPLAY_W: "320"
+  # DISPLAY_H: "240"
+  # GRID_COL1_X: "9"
+  # GRID_COL2_X: "164"
+  # GRID_ROW1_Y: "54"
+  # GRID_ROW2_Y: "114"
+  # GRID_ROW3_Y: "174"
+  # TILE_W: "147"
+  # TILE_H: "52"
+  # HEADER_Y: "14"
+  # OVERLAY_SLIDER_W: "96"
+  # OVERLAY_SLIDER_H: "160"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background.png"
+  # TILE_ICON_X: "0"
+  # TILE_ICON_Y: "0"
+  # TILE_TITLE_X: "48"
+  # TILE_TITLE_Y: "4"
+  # TILE_VALUE_X: "48"
+  # TILE_VALUE_Y: "18"
+
+  # ----- ILI9342 / 90° — Portrait 240×320 (USB on bottom) -----
+  # DISPLAY_MODEL: "ILI9342"
+  # DISPLAY_COLOR_ORDER: "RGB"
+  # DISPLAY_DATA_RATE: "40MHz"
+  # ORIENTATION: "90"
+  # LVGL_ROTATION: "270"
+  # TOUCH_SWAP_XY: "true"
+  # TOUCH_MIRROR_X: "false"
+  # TOUCH_MIRROR_Y: "false"
+  # TOUCH_CAL_X_MIN: "340"
+  # TOUCH_CAL_X_MAX: "3860"
+  # TOUCH_CAL_Y_MIN: "280"
+  # TOUCH_CAL_Y_MAX: "3860"
+  # DISPLAY_W: "240"
+  # DISPLAY_H: "320"
+  # GRID_COL1_X: "6"
+  # GRID_COL2_X: "123"
+  # GRID_ROW1_Y: "54"
+  # GRID_ROW2_Y: "142"
+  # GRID_ROW3_Y: "230"
+  # TILE_W: "111"
+  # TILE_H: "80"
+  # HEADER_Y: "14"
+  # OVERLAY_SLIDER_W: "96"
+  # OVERLAY_SLIDER_H: "200"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background_90.png"
+  # TILE_ICON_X: "0"
+  # TILE_ICON_Y: "0"
+  # TILE_TITLE_X: "4"
+  # TILE_TITLE_Y: "38"
+  # TILE_VALUE_X: "4"
+  # TILE_VALUE_Y: "52"
+
+  # ----- ILI9342 / 180° — Landscape flipped 320×240 (USB on left) -----
+  DISPLAY_MODEL: "ILI9342"
+  DISPLAY_COLOR_ORDER: "RGB"
+  DISPLAY_DATA_RATE: "40MHz"
+  ORIENTATION: "180"
+  LVGL_ROTATION: "0"
   TOUCH_SWAP_XY: "true"
+  TOUCH_MIRROR_X: "true"
+  TOUCH_MIRROR_Y: "true"
   TOUCH_CAL_X_MIN: "340"
   TOUCH_CAL_X_MAX: "3860"
   TOUCH_CAL_Y_MIN: "280"
   TOUCH_CAL_Y_MAX: "3860"
-
-  # ============================================================
-  # Uncomment ONE orientation block, comment out the other.
-  # LVGL_ROTATION drives everything: LVGL rotates the display output and the
-  # touch coordinates together (ESPHome 2026.4+). The panel is always driven at
-  # its native 320x240 (see display:). ORIENTATION only names where the USB
-  # connector points — it is a label, nothing reads it.
-  #
-  # The tiles are placed by LVGL's flex engine inside a container, so an
-  # orientation block sets the container's box and the tile size and the grid
-  # shape follows: 4x2 across in landscape, 2x4 down in portrait. Tiles flow in
-  # creation order, which is reading order, 1..8 left to right, top to bottom.
-  # ============================================================
-
-  # ----- shared by both orientations -----
-  # The tile area starts 46px down in either shape, clearing an 18px header at
-  # HEADER_Y, and the row gap and overlay slider width do not depend on shape.
-  GRID_Y: "46"
-  GRID_GAP_Y: "8"
-  HEADER_Y: "14"
-  OVERLAY_SLIDER_W: "96"
-
-  # ----- PORTRAIT 240x320, 2x4 grid (USB at bottom) -----
-  # For USB at the top instead, use ORIENTATION "270" / LVGL_ROTATION "90";
-  # nothing else changes.
-  # Grid: columns 6 / 124 at TILE_W 110 (8px gutter, 6px margins); rows 46 /
-  # 113 / 180 / 247 at TILE_H 59 (8px gutters, 14px clear of the header and the
-  # bottom edge). style_tile pads 8, so a content box is 94x43 — too short to
-  # stack a 36px icon above the text, so the icon sits left with the title and
-  # value beside it, leaving ~50px of text width.
-  # ORIENTATION: "90"
-  # LVGL_ROTATION: "270"
-  # TOUCH_MIRROR_X: "false"
-  # TOUCH_MIRROR_Y: "false"
-  # DISPLAY_W: "240"
-  # DISPLAY_H: "320"
-  # GRID_X: "6"
-  # GRID_W: "228"
-  # GRID_H: "260"
-  # GRID_GAP_X: "8"
-  # TILE_W: "110"
-  # TILE_H: "59"
-  # OVERLAY_SLIDER_H: "200"
-  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background_90.png"
-  # TILE_ICON_X: "0"
-  # TILE_ICON_Y: "3"
-  # TILE_TITLE_X: "44"
-  # TILE_TITLE_Y: "4"
-  # TILE_VALUE_X: "44"
-  # TILE_VALUE_Y: "20"
-
-  # ----- LANDSCAPE 320x240, 4x2 grid (USB on left) -----
-  # For USB on the right instead, use ORIENTATION "0" / LVGL_ROTATION "180";
-  # nothing else changes.
-  # Grid: columns 9 / 86 / 163 / 240 at TILE_W 70 (7px gutters, 9/10px margins);
-  # rows 46 / 140 at TILE_H 86. A content box is 54x70: a 36px icon circle on
-  # top, then the title and value stacked underneath, ~54px of text width.
-  ORIENTATION: "180"
-  LVGL_ROTATION: "0"
-  TOUCH_MIRROR_X: "true"
-  TOUCH_MIRROR_Y: "true"
   DISPLAY_W: "320"
   DISPLAY_H: "240"
-  GRID_X: "9"
-  GRID_W: "301"
-  GRID_H: "180"
-  GRID_GAP_X: "7"
+  GRID_COL1_X: "9"
+  GRID_COL2_X: "164"
+  GRID_ROW1_Y: "54"
+  GRID_ROW2_Y: "114"
+  GRID_ROW3_Y: "174"
   TILE_W: "70"
   TILE_H: "86"
+  HEADER_Y: "14"
+  OVERLAY_SLIDER_W: "96"
   OVERLAY_SLIDER_H: "160"
   BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background.png"
   TILE_ICON_X: "9"
@@ -651,6 +768,57 @@ substitutions:
   TILE_TITLE_Y: "38"
   TILE_VALUE_X: "0"
   TILE_VALUE_Y: "54"
+
+  # ----- ILI9342 / 270° — Portrait flipped 240×320 (USB on top) -----
+  # DISPLAY_MODEL: "ILI9342"
+  # DISPLAY_COLOR_ORDER: "RGB"
+  # DISPLAY_DATA_RATE: "40MHz"
+  # ORIENTATION: "270"
+  # LVGL_ROTATION: "90"
+  # TOUCH_SWAP_XY: "true"
+  # TOUCH_MIRROR_X: "false"
+  # TOUCH_MIRROR_Y: "false"
+  # TOUCH_CAL_X_MIN: "340"
+  # TOUCH_CAL_X_MAX: "3860"
+  # TOUCH_CAL_Y_MIN: "280"
+  # TOUCH_CAL_Y_MAX: "3860"
+  # DISPLAY_W: "240"
+  # DISPLAY_H: "320"
+  # GRID_COL1_X: "6"
+  # GRID_COL2_X: "123"
+  # GRID_ROW1_Y: "54"
+  # GRID_ROW2_Y: "142"
+  # GRID_ROW3_Y: "230"
+  # TILE_W: "111"
+  # TILE_H: "80"
+  # HEADER_Y: "14"
+  # OVERLAY_SLIDER_W: "96"
+  # OVERLAY_SLIDER_H: "200"
+  # BG_IMAGE: "${ASSET_BASE}/images/smartdisplay_background_90.png"
+  # TILE_ICON_X: "0"
+  # TILE_ICON_Y: "0"
+  # TILE_TITLE_X: "4"
+  # TILE_TITLE_Y: "38"
+  # TILE_VALUE_X: "4"
+  # TILE_VALUE_Y: "52"
+
+  # ============================================================
+  # LOCAL: FLEX TILE GRID
+  # The 8 tiles flow inside a flex container (tile_grid) instead of sitting
+  # at GRID_COL*_X / GRID_ROW*_Y, which this config ignores. The container's
+  # box and gaps set the grid shape: 301px wide fits four 70px tiles (4x2).
+  # The active preset above sets TILE_W/H and the tile content offsets.
+  # For portrait 2x4 (verified on hardware), switch to the ILI9342 / 90°
+  # preset and use GRID_X 6, GRID_W 228, GRID_H 260, GRID_GAP_X 8,
+  # TILE_W 110, TILE_H 59, TILE_ICON_Y 3, TILE_TITLE_X/VALUE_X 44,
+  # TILE_TITLE_Y 4, TILE_VALUE_Y 20.
+  # ============================================================
+  GRID_X: "9"
+  GRID_Y: "46"
+  GRID_W: "301"
+  GRID_H: "180"
+  GRID_GAP_X: "7"
+  GRID_GAP_Y: "8"
 
 # ============================================================
 # No need to edit below this line.
@@ -662,6 +830,7 @@ substitutions:
 # ============================================================
 
 esphome:
+  min_version: 2026.9.0
   name: smartdisplay
   friendly_name: SmartDisplay
   on_boot:
@@ -682,18 +851,17 @@ esp32:
 
 logger:
 
-# Credentials are loaded from secrets.yaml: /config/esphome/secrets.yaml under the
-# ESPHome Device Builder add-on, or the secrets.yaml symlink next to this file locally.
-# Keys used: wifi_ssid, wifi_password, smartdisplay_api_key, wifi_ap_password.
+# Credentials are loaded from secrets.yaml — copy secrets.yaml.example to secrets.yaml and fill in your values.
 api:
   encryption:
     key: !secret smartdisplay_api_key
 
 ota:
   - platform: esphome
-    # No password: a bare 'encryption:' inherits the api encryption key, which
-    # authenticates the uploader and saves ~3.5 KB of flash. Switching a device
-    # that was flashed with a password requires one serial install.
+    id: esphome_ota
+    # A bare 'encryption:' inherits the api encryption key, which authenticates
+    # the uploader; ESPHome 2026.9 warns that a separate ota password costs
+    # ~3.5 KB of flash and 60 bytes of RAM for no added protection.
     encryption:
 
 wifi:
@@ -904,8 +1072,8 @@ font:
              ' ','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
              'ä','ö','ü','Ä','Ö','Ü','ß','/','…']             
 
-  # Material Design Icons (MDI, Apache 2.0) — downloaded at build time from the
-  # pinned MDI_FONT_URL; no local copy of the .ttf is needed.
+  # Material Design Icons (MDI, Apache 2.0) — downloaded at build time from
+  # the pinned MDI_FONT_URL; no local copy of the .ttf is needed.
   # Source: https://github.com/Templarian/MaterialDesign-Webfont
   - file: "${MDI_FONT_URL}"
     id: materialdesign_icons
@@ -1259,43 +1427,13 @@ text_sensor:
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
-    id: ha_avail_tile2
-    entity_id: ${TILE2_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile3
-    entity_id: ${TILE3_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile4
-    entity_id: ${TILE4_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile5
-    entity_id: ${TILE5_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile6
-    entity_id: ${TILE6_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile7
-    entity_id: ${TILE7_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile8
-    entity_id: ${TILE8_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
     id: ha_state_tile2
     entity_id: ${TILE2_STATE_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: ha_avail_tile2
+    entity_id: ${TILE2_AVAILABILITY_ENTITY}
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
@@ -1304,8 +1442,18 @@ text_sensor:
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
+    id: ha_avail_tile3
+    entity_id: ${TILE3_AVAILABILITY_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
     id: ha_state_tile4
     entity_id: ${TILE4_STATE_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: ha_avail_tile4
+    entity_id: ${TILE4_AVAILABILITY_ENTITY}
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
@@ -1314,8 +1462,18 @@ text_sensor:
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
+    id: ha_avail_tile5
+    entity_id: ${TILE5_AVAILABILITY_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
     id: ha_state_tile6
     entity_id: ${TILE6_STATE_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: ha_avail_tile6
+    entity_id: ${TILE6_AVAILABILITY_ENTITY}
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
@@ -1324,8 +1482,18 @@ text_sensor:
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
+    id: ha_avail_tile7
+    entity_id: ${TILE7_AVAILABILITY_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
     id: ha_state_tile8
     entity_id: ${TILE8_STATE_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: ha_avail_tile8
+    entity_id: ${TILE8_AVAILABILITY_ENTITY}
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
@@ -1645,16 +1813,9 @@ light:
 # Touchscreen configuration (XPT2046)
 # IMPORTANT:
 # - calibration values are device-specific
-# - Since ESPHome 2026.4 LVGL manages rotation (see `rotation:` in the lvgl
-#   block) and rotates touch coordinates automatically. The transform below is
-#   therefore NOT a per-orientation rotation — it only corrects the raw XPT2046
-#   axis orientation against the panel's native (landscape) frame, and is the
-#   same for both landscape presets.
-# - These values differ from the ILI9341 config (swap_xy false / mirror_x true /
-#   mirror_y false) because that panel's native frame is portrait. A portrait
-#   preset on THIS panel would need both mirrors off, verified on hardware, but
-#   this file is landscape-only — the full four-preset table is in CLAUDE.md
-#   and in upstream PR #26.
+# - LVGL manages rotation for display and touch. Use the selected hardware
+#   profile above for raw-axis corrections; the ILI9342 profile includes
+#   contributor-tested mirror settings for portrait and landscape.
 touchscreen:
   platform: xpt2046
   id: ts_touch
@@ -1679,17 +1840,29 @@ touchscreen:
     - lambda: |-
         id(last_touch_ms) = millis();
 
-# Display configuration (ILI9342 — see the model note below)
+# Display configuration (selected CYD controller)
 display:
   - platform: mipi_spi
     id: my_display
     spi_id: lcd
-    # Board revision and colour order live in the substitutions at the top.
-    # Do NOT add a display transform — rotation is handled by LVGL.
     model: ${DISPLAY_MODEL}
     color_order: ${DISPLAY_COLOR_ORDER}
+    data_rate: ${DISPLAY_DATA_RATE}
+    # GPIO15 and GPIO2 are ESP32 strapping pins; the display is wired to
+    # them on this board, so the warning is suppressed rather than the
+    # pins moved.
+    cs_pin:
+      number: 15
+      ignore_strapping_warning: true
+    dc_pin:
+      number: 2
+      ignore_strapping_warning: true
+    invert_colors: false
     update_interval: never
     auto_clear_enabled: false
+
+    # Use the model's native dimensions: ILI9341 240x320, ILI9342 320x240.
+    # Do not add a display transform; LVGL handles rotation below.
 
 lvgl:
   displays:
@@ -5037,7 +5210,7 @@ script:
 
           // TILE*_AVAILABILITY_ENTITY: while that entity is not "on" the device behind this
           // tile is offline (e.g. a printer that lost power), so whatever state Home Assistant
-          // still reports is stale. Show the tile inactive and say "Offline" instead.
+          // still reports is stale. Show the tile inactive and say so instead.
           auto tile_offline = [](const char* avail_entity, const char* own_entity, const std::string& avail_state) {
             if (std::string(avail_entity) == std::string(own_entity)) return false;  // check disabled
             return avail_state != "on";
@@ -5058,6 +5231,7 @@ script:
           if (t7_offline) t7_on = false;
           bool t8_offline = tile_offline("${TILE8_AVAILABILITY_ENTITY}", "${TILE8_ENTITY}", std::string(id(ha_avail_tile8).state.c_str()));
           if (t8_offline) t8_on = false;
+
 
           set_value_auto(id(t1_value), t1_on, "${TILE1_TYPE}", "${TILE1_VALUE_MODE}",
                          id(tile1_brightness).state, id(tile1_percentage).state, std::string(id(tile1_preset).state.c_str()),
@@ -5097,14 +5271,15 @@ script:
                          id(tile8_climate_current_temperature).state, id(tile8_climate_target_temperature).state, id(tile8_climate_humidity).state,
                          "${TILE8_LABEL_ON}", "${TILE8_LABEL_OFF}");
 
-          if (t1_offline) set_lbl(id(t1_value), "Offline");
-          if (t2_offline) set_lbl(id(t2_value), "Offline");
-          if (t3_offline) set_lbl(id(t3_value), "Offline");
-          if (t4_offline) set_lbl(id(t4_value), "Offline");
-          if (t5_offline) set_lbl(id(t5_value), "Offline");
-          if (t6_offline) set_lbl(id(t6_value), "Offline");
-          if (t7_offline) set_lbl(id(t7_value), "Offline");
-          if (t8_offline) set_lbl(id(t8_value), "Offline");
+          if (t1_offline) set_lbl(id(t1_value), "${UI_OFFLINE}");
+          if (t2_offline) set_lbl(id(t2_value), "${UI_OFFLINE}");
+          if (t3_offline) set_lbl(id(t3_value), "${UI_OFFLINE}");
+          if (t4_offline) set_lbl(id(t4_value), "${UI_OFFLINE}");
+          if (t5_offline) set_lbl(id(t5_value), "${UI_OFFLINE}");
+          if (t6_offline) set_lbl(id(t6_value), "${UI_OFFLINE}");
+          if (t7_offline) set_lbl(id(t7_value), "${UI_OFFLINE}");
+          if (t8_offline) set_lbl(id(t8_value), "${UI_OFFLINE}");
+
 
           if (id(active_control_kind) == "climate_temperature" && !lv_obj_has_flag(id(climate_detail_overlay), LV_OBJ_FLAG_HIDDEN)) {
             auto label_for_climate_mode = [](std::string mode) {
