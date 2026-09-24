@@ -42,7 +42,7 @@
 #   light -> brightness, fan -> percentage/preset, scene/script -> text
 #
 # What you must adapt before flashing
-# 1) Secrets: api.encryption.key, ota.password, WiFi credentials (prefer secrets.yaml)
+# 1) Secrets: API/OTA encryption key and WiFi credentials (in secrets.yaml)
 # 2) Touch transform if taps land in the wrong place
 # 3) TILE*_ENTITY / TILE*_STATE_ENTITY: Home Assistant entity IDs you want to control/mirror
 # 4) Orientation + touch calibration:
@@ -54,8 +54,8 @@
 substitutions:
 
   DIRECT_ACTIONS: "true"                           # true = call Home Assistant services directly, false = only emit action events
-  ROOM_NAME: "Printers"                              # room name shown in the top-left header
-  TIME_24H: "false"                                 # true = 24h format, false = 12h format
+  ROOM_NAME: "Printers"                            # room name shown in the top-left header
+  TIME_24H: "false"                                # true = 24h format, false = 12h format
 
   ## DIM settings
   AUTO_DIM: "true"                                 # true = enable auto dimming
@@ -78,6 +78,7 @@ substitutions:
   UI_CANCEL: "Cancel"
   UI_TURN_OFF: "Turn off"
   UI_CLOSE: "Close"
+  UI_OFFLINE: "Offline"
   UI_COLOR: "Color"
   UI_TEMPERATURE_SHORT: "Temp."
   UI_BRIGHTNESS: "Brightness"
@@ -94,15 +95,17 @@ substitutions:
 
   # ============================================================
   # REMOTE ASSETS
-  # Fonts and images are downloaded at build time, so this file is
-  # self-contained: nothing but the YAML is needed to compile it — e.g.
-  # in the ESPHome Device Builder add-on under Home Assistant, which has
-  # no access to this repository's fonts/ and images/ folders.
-  # ASSET_BASE points at the fork because the 320x480 background only
-  # exists there, pinned to the commit that added it. MDI_FONT_URL is pinned to a
-  # release tag on purpose: the MDI_GLYPH_* values are raw codepoints, and
-  # an unpinned font bump could quietly change which icon a tile shows.
+  # The icon font and the background images are downloaded at build time,
+  # so no fonts/ or images/ folder is needed beside this YAML. A matching
+  # secrets.yaml is still required. This matters
+  # most under the ESPHome Device Builder add-on in Home Assistant, which
+  # cannot see this repository.
+  # ASSET_BASE is pinned to a repository commit. MDI_FONT_URL is
+  # pinned to a release tag on purpose: the MDI_GLYPH_* values below are
+  # raw codepoints, and an unpinned font bump could quietly change which
+  # icon a tile shows.
   # ============================================================
+  # LOCAL: the 320x480 background exists only in the fork, so ASSET_BASE points there.
   ASSET_BASE: "https://raw.githubusercontent.com/pleasantone/ESPHome-touch-display-mount/edd6be2cbb51e542f0aa50c73193e5759720ec35/esphome/home-like"
   MDI_FONT_URL: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/v7.4.47/fonts/materialdesignicons-webfont.ttf"
 
@@ -125,20 +128,19 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE1_ENTITY: "switch.x1c_plug"                    # main Home Assistant entity for this tile
-  TILE1_STATE_ENTITY: "switch.x1c_plug"              # entity used for active/inactive state styling
-  TILE1_TITLE: "X1C Plug"                           # tile title shown in the UI
+  TILE1_ENTITY: "switch.x1c_plug"                  # main Home Assistant entity for this tile
+  TILE1_STATE_ENTITY: "switch.x1c_plug"            # entity used for active/inactive state styling
+  TILE1_TITLE: "X1C Plug"                          # tile title shown in the UI
   TILE1_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE1_TYPE: "switch"                              # tile type: light | fan | switch | scene | script | cover | climate
+  TILE1_TYPE: "switch"                             # tile type: light | fan | switch | scene | script | cover | climate
   TILE1_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE1_CONFIRM_OFF: "true"                        # true = confirm before an off/close short-tap action
-  TILE1_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE1_CONFIRM_OFF: "true"                       # true = confirm before an off/close short-tap action
+  TILE1_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE1_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE1_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE1_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
+  TILE1_AVAILABILITY_ENTITY: "${TILE1_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
   TILE1_POWER_TILE: "0"                            # tile number of a switch that powers this entity (0 = none); shows "No power" and inactive while that tile is off
-  TILE1_AVAILABILITY_ENTITY: "${TILE1_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online
-                                                   # sensor); leave as the tile's own entity to disable the check
 
   # --- colors ---
   TILE1_CIRCLE_ACTIVE_COLOR: "0x30D158"            # icon circle color when active
@@ -177,20 +179,19 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE2_ENTITY: "switch.h2c_plug"                    # main Home Assistant entity for this tile
-  TILE2_STATE_ENTITY: "switch.h2c_plug"              # entity used for active/inactive state styling
-  TILE2_TITLE: "H2C Plug"                           # tile title shown in the UI
+  TILE2_ENTITY: "switch.h2c_plug"                  # main Home Assistant entity for this tile
+  TILE2_STATE_ENTITY: "switch.h2c_plug"            # entity used for active/inactive state styling
+  TILE2_TITLE: "H2C Plug"                          # tile title shown in the UI
   TILE2_ICON: "\U000F06A5"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE2_TYPE: "switch"                              # tile type: light | fan | switch | scene | script | cover | climate
+  TILE2_TYPE: "switch"                             # tile type: light | fan | switch | scene | script | cover | climate
   TILE2_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE2_CONFIRM_OFF: "true"                        # true = confirm before an off/close short-tap action
-  TILE2_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE2_CONFIRM_OFF: "true"                       # true = confirm before an off/close short-tap action
+  TILE2_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE2_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE2_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE2_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
+  TILE2_AVAILABILITY_ENTITY: "${TILE2_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
   TILE2_POWER_TILE: "0"                            # tile number of a switch that powers this entity (0 = none); shows "No power" and inactive while that tile is off
-  TILE2_AVAILABILITY_ENTITY: "${TILE2_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online
-                                                   # sensor); leave as the tile's own entity to disable the check
 
   # --- colors ---
   TILE2_CIRCLE_ACTIVE_COLOR: "0x30D158"            # icon circle color when active
@@ -229,20 +230,19 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE3_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light"                    # main Home Assistant entity for this tile
-  TILE3_STATE_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light"              # entity used for active/inactive state styling
-  TILE3_TITLE: "X1C Light"                           # tile title shown in the UI
+  TILE3_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light" # main Home Assistant entity for this tile
+  TILE3_STATE_ENTITY: "light.x1c_x1c_00m09d460801484_chamber_light" # entity used for active/inactive state styling
+  TILE3_TITLE: "X1C Light"                         # tile title shown in the UI
   TILE3_ICON: "\U000F042B"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE3_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE3_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE3_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
-  TILE3_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE3_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
+  TILE3_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE3_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE3_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE3_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
+  TILE3_AVAILABILITY_ENTITY: "binary_sensor.x1c_x1c_00m09d460801484_online" # must be "on" for the tile to be live; the tile's own entity disables the check
   TILE3_POWER_TILE: "1"                            # tile number of a switch that powers this entity (0 = none); shows "No power" and inactive while that tile is off
-  TILE3_AVAILABILITY_ENTITY: "binary_sensor.x1c_x1c_00m09d460801484_online"            # entity that must be "on" for this tile to be live (e.g. a printer's online
-                                                   # sensor); leave as the tile's own entity to disable the check
 
   # --- colors ---
   TILE3_CIRCLE_ACTIVE_COLOR: "0xFEC600"            # icon circle color when active
@@ -281,20 +281,19 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE4_ENTITY: "light.h2c_h2c_31b8ap630100072_chamber_light"                       # main Home Assistant entity for this tile
-  TILE4_STATE_ENTITY: "light.h2c_h2c_31b8ap630100072_chamber_light"                 # entity used for active/inactive state styling
-  TILE4_TITLE: "H2C Light"                              # tile title shown in the UI
+  TILE4_ENTITY: "light.h2c_h2c_31b8ap630100072_chamber_light" # main Home Assistant entity for this tile
+  TILE4_STATE_ENTITY: "light.h2c_h2c_31b8ap630100072_chamber_light" # entity used for active/inactive state styling
+  TILE4_TITLE: "H2C Light"                         # tile title shown in the UI
   TILE4_ICON: "\U000F042B"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE4_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE4_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE4_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
-  TILE4_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE4_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
+  TILE4_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE4_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE4_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE4_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
+  TILE4_AVAILABILITY_ENTITY: "binary_sensor.h2c_h2c_31b8ap630100072_online" # must be "on" for the tile to be live; the tile's own entity disables the check
   TILE4_POWER_TILE: "2"                            # tile number of a switch that powers this entity (0 = none); shows "No power" and inactive while that tile is off
-  TILE4_AVAILABILITY_ENTITY: "binary_sensor.h2c_h2c_31b8ap630100072_online"            # entity that must be "on" for this tile to be live (e.g. a printer's online
-                                                   # sensor); leave as the tile's own entity to disable the check
 
   # --- colors ---
   TILE4_CIRCLE_ACTIVE_COLOR: "0xFEC600"            # icon circle color when active
@@ -333,20 +332,19 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE5_ENTITY: "light.riser_lights"                 # main Home Assistant entity for this tile
-  TILE5_STATE_ENTITY: "light.riser_lights"           # entity used for active/inactive state styling
-  TILE5_TITLE: "Riser Light"                        # tile title shown in the UI
+  TILE5_ENTITY: "light.riser_lights"               # main Home Assistant entity for this tile
+  TILE5_STATE_ENTITY: "light.riser_lights"         # entity used for active/inactive state styling
+  TILE5_TITLE: "Riser Light"                       # tile title shown in the UI
   TILE5_ICON: "\U000F1051"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE5_TYPE: "light"                              # tile type: light | fan | switch | scene | script | cover | climate
   TILE5_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE5_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
+  TILE5_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
   TILE5_LONGPRESS: "slider"                        # long press mode: none | slider | action
   TILE5_VALUE_MODE: "auto"                         # value mode: auto | brightness | percentage | preset | text
   TILE5_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE5_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
+  TILE5_AVAILABILITY_ENTITY: "${TILE5_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
   TILE5_POWER_TILE: "0"                            # tile number of a switch that powers this entity (0 = none); shows "No power" and inactive while that tile is off
-  TILE5_AVAILABILITY_ENTITY: "${TILE5_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online
-                                                   # sensor); leave as the tile's own entity to disable the check
 
   # --- colors ---
   TILE5_CIRCLE_ACTIVE_COLOR: "0xFEC600"            # icon circle color when active
@@ -386,19 +384,18 @@ substitutions:
 
   # --- basic settings ---
   TILE6_ENTITY: "fan.window_exhaust"               # main Home Assistant entity for this tile
-  TILE6_STATE_ENTITY: "fan.window_exhaust"         # entity used for active/inactive state styling  
-  TILE6_TITLE: "Exhaust Fan"                           # tile title shown in the UI
+  TILE6_STATE_ENTITY: "fan.window_exhaust"         # entity used for active/inactive state styling
+  TILE6_TITLE: "Exhaust Fan"                       # tile title shown in the UI
   TILE6_ICON: "\U000F11DC"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE6_TYPE: "fan"                              # tile type: light | fan | switch | scene | script | cover | climate
+  TILE6_TYPE: "fan"                                # tile type: light | fan | switch | scene | script | cover | climate
   TILE6_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE6_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
-  TILE6_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE6_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
+  TILE6_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE6_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE6_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE6_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
+  TILE6_AVAILABILITY_ENTITY: "${TILE6_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
   TILE6_POWER_TILE: "0"                            # tile number of a switch that powers this entity (0 = none); shows "No power" and inactive while that tile is off
-  TILE6_AVAILABILITY_ENTITY: "${TILE6_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online
-                                                   # sensor); leave as the tile's own entity to disable the check
 
   # --- colors ---
   TILE6_CIRCLE_ACTIVE_COLOR: "0x00C5EC"            # icon circle color when active
@@ -437,20 +434,19 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE7_ENTITY: "fan.bento_box"                # main Home Assistant entity for this tile
-  TILE7_STATE_ENTITY: "fan.bento_box"          # entity used for active/inactive state styling
-  TILE7_TITLE: "Bento Box"                             # tile title shown in the UI
+  TILE7_ENTITY: "fan.bento_box"                    # main Home Assistant entity for this tile
+  TILE7_STATE_ENTITY: "fan.bento_box"              # entity used for active/inactive state styling
+  TILE7_TITLE: "Bento Box"                         # tile title shown in the UI
   TILE7_ICON: "\U000F0D43"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
-  TILE7_TYPE: "fan"                              # tile type: light | fan | switch | scene | script | cover | climate
+  TILE7_TYPE: "fan"                                # tile type: light | fan | switch | scene | script | cover | climate
   TILE7_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE7_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
-  TILE7_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE7_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
+  TILE7_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE7_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
-  TILE7_LABEL_OFF: "Off"                        # text shown when entity is off (closed)
-  TILE7_LABEL_ON: "On"                           # text shown when entity is on (open)
+  TILE7_LABEL_OFF: "Off"                           # text shown when entity is off
+  TILE7_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
+  TILE7_AVAILABILITY_ENTITY: "${TILE7_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
   TILE7_POWER_TILE: "0"                            # tile number of a switch that powers this entity (0 = none); shows "No power" and inactive while that tile is off
-  TILE7_AVAILABILITY_ENTITY: "${TILE7_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online
-                                                   # sensor); leave as the tile's own entity to disable the check
 
   # --- colors ---
   TILE7_CIRCLE_ACTIVE_COLOR: "0x00C5EC"            # icon circle color when active
@@ -489,20 +485,19 @@ substitutions:
   # ============================================================
 
   # --- basic settings ---
-  TILE8_ENTITY: "fan.chamber_heater"                 # main Home Assistant entity for this tile
-  TILE8_STATE_ENTITY: "fan.chamber_heater"           # entity used for active/inactive state styling  
-  TILE8_TITLE: "Heater"                          # tile title shown in the UI
+  TILE8_ENTITY: "fan.chamber_heater"               # main Home Assistant entity for this tile
+  TILE8_STATE_ENTITY: "fan.chamber_heater"         # entity used for active/inactive state styling
+  TILE8_TITLE: "Heater"                            # tile title shown in the UI
   TILE8_ICON: "\U000F1A45"                         # MDI glyph — also add to MDI_GLYPH_* list above if not already there
   TILE8_TYPE: "fan"                                # tile type: light | fan | switch | scene | script | cover | climate
   TILE8_TAP_ACTION: "auto"                         # tap action: auto | toggle | activate | fan_toggle_preset | custom
-  TILE8_CONFIRM_OFF: "false"                       # true = confirm before an off/close short-tap action
-  TILE8_LONGPRESS: "none"                        # long press mode: none | slider | action
+  TILE8_CONFIRM_OFF: "false"                      # true = confirm before an off/close short-tap action
+  TILE8_LONGPRESS: "none"                          # long press mode: none | slider | action
   TILE8_VALUE_MODE: "text"                         # value mode: auto | brightness | percentage | preset | text
   TILE8_LABEL_OFF: "Off"                           # text shown when entity is off
   TILE8_LABEL_ON: "On"                             # text shown for text-mode tiles when entity is on
+  TILE8_AVAILABILITY_ENTITY: "${TILE8_ENTITY}"     # must be "on" for the tile to be live; the tile's own entity disables the check
   TILE8_POWER_TILE: "0"                            # tile number of a switch that powers this entity (0 = none); shows "No power" and inactive while that tile is off
-  TILE8_AVAILABILITY_ENTITY: "${TILE8_ENTITY}"            # entity that must be "on" for this tile to be live (e.g. a printer's online
-                                                   # sensor); leave as the tile's own entity to disable the check
 
   # --- colors ---
   TILE8_CIRCLE_ACTIVE_COLOR: "0xFF8C00"            # icon circle color when active
@@ -517,9 +512,9 @@ substitutions:
   TILE8_VALUE_DISABLED_COLOR: "0xD9D9D9"           # value color when inactive
 
   # --- advanced settings ---
-  TILE8_TAP_SERVICE: ""                  # optional service override, e.g. fan.toggle
-  TILE8_TAP_PARAM_KEY: ""               # optional extra service parameter key
-  TILE8_TAP_PARAM_VAL: ""                      # optional extra service parameter value
+  TILE8_TAP_SERVICE: ""                            # optional service override, e.g. light.toggle
+  TILE8_TAP_PARAM_KEY: ""                          # optional extra service parameter key
+  TILE8_TAP_PARAM_VAL: ""                          # optional extra service parameter value
   # if LONGPRESS = slider:
   TILE8_LONGPRESS_SLIDER: "auto"                   # slider type: auto | brightness | percentage | cover_position
   TILE8_LONGPRESS_OFF_VALUE: "0"                   # initial slider value when entity is off
@@ -584,17 +579,14 @@ substitutions:
 # ============================================================
 # No need to edit below this line.
 # All configuration is done via the substitutions above.
-# Credentials are loaded from secrets.yaml: /config/esphome/secrets.yaml under the
-# ESPHome Device Builder add-on, or the secrets.yaml symlink next to this file locally
-# (ESPHome only looks next to the config: ln -s ../../secrets.yaml secrets.yaml).
-# Keys used: wifi_ssid, wifi_password, smartdisplay_api_key, wifi_ap_password —
-# the names the ESPHome Device Builder add-on's secrets.yaml uses.
+# Credentials are managed in secrets.yaml (see secrets.yaml.example).
 # The Material Design Icons font (Apache 2.0) is downloaded from its upstream
 # repository at build time — see MDI_FONT_URL in the substitutions above.
 # Source: https://github.com/Templarian/MaterialDesign-Webfont
 # ============================================================
 
 esphome:
+  min_version: 2026.9.0
   name: smartdisplay-jc3248
   friendly_name: SmartDisplay JC3248
   on_boot:
@@ -628,9 +620,10 @@ api:
 
 ota:
   - platform: esphome
-    # No password: a bare 'encryption:' inherits the api encryption key, which
-    # authenticates the uploader and saves ~3.5 KB of flash. Switching a device
-    # that was flashed with a password requires one serial install.
+    id: esphome_ota
+    # A bare 'encryption:' inherits the api encryption key, which authenticates
+    # the uploader; ESPHome 2026.9 warns that a separate ota password costs
+    # ~3.5 KB of flash and 60 bytes of RAM for no added protection.
     encryption:
 
 wifi:
@@ -841,8 +834,8 @@ font:
              ' ','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
              'ä','ö','ü','Ä','Ö','Ü','ß','/','…']             
 
-  # Material Design Icons (MDI, Apache 2.0) — downloaded at build time from the
-  # pinned MDI_FONT_URL; no local copy of the .ttf is needed.
+  # Material Design Icons (MDI, Apache 2.0) — downloaded at build time from
+  # the pinned MDI_FONT_URL; no local copy of the .ttf is needed.
   # Source: https://github.com/Templarian/MaterialDesign-Webfont
   - file: "${MDI_FONT_URL}"
     id: materialdesign_icons
@@ -1195,43 +1188,13 @@ text_sensor:
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
-    id: ha_avail_tile2
-    entity_id: ${TILE2_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile3
-    entity_id: ${TILE3_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile4
-    entity_id: ${TILE4_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile5
-    entity_id: ${TILE5_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile6
-    entity_id: ${TILE6_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile7
-    entity_id: ${TILE7_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
-    id: ha_avail_tile8
-    entity_id: ${TILE8_AVAILABILITY_ENTITY}
-    on_value: { then: [ script.execute: ui_refresh ] }
-
-  - platform: homeassistant
     id: ha_state_tile2
     entity_id: ${TILE2_STATE_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: ha_avail_tile2
+    entity_id: ${TILE2_AVAILABILITY_ENTITY}
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
@@ -1240,8 +1203,18 @@ text_sensor:
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
+    id: ha_avail_tile3
+    entity_id: ${TILE3_AVAILABILITY_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
     id: ha_state_tile4
     entity_id: ${TILE4_STATE_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: ha_avail_tile4
+    entity_id: ${TILE4_AVAILABILITY_ENTITY}
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
@@ -1250,8 +1223,18 @@ text_sensor:
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
+    id: ha_avail_tile5
+    entity_id: ${TILE5_AVAILABILITY_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
     id: ha_state_tile6
     entity_id: ${TILE6_STATE_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: ha_avail_tile6
+    entity_id: ${TILE6_AVAILABILITY_ENTITY}
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
@@ -1260,8 +1243,18 @@ text_sensor:
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
+    id: ha_avail_tile7
+    entity_id: ${TILE7_AVAILABILITY_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
     id: ha_state_tile8
     entity_id: ${TILE8_STATE_ENTITY}
+    on_value: { then: [ script.execute: ui_refresh ] }
+
+  - platform: homeassistant
+    id: ha_avail_tile8
+    entity_id: ${TILE8_AVAILABILITY_ENTITY}
     on_value: { then: [ script.execute: ui_refresh ] }
 
   - platform: homeassistant
@@ -4851,9 +4844,9 @@ script:
           bool t8_nopower = unpowered("${TILE8_POWER_TILE}");
           if (t8_nopower) t8_on = false;
 
-          // TILE*_AVAILABILITY_ENTITY: while that entity is not "on" the device behind this tile
-          // is offline (e.g. a printer that lost power or was unplugged by hand), so whatever
-          // state Home Assistant still reports is stale. Catches power cuts POWER_TILE cannot see.
+          // TILE*_AVAILABILITY_ENTITY: while that entity is not "on" the device behind this
+          // tile is offline (e.g. a printer that lost power), so whatever state Home Assistant
+          // still reports is stale. Show the tile inactive and say so instead.
           auto tile_offline = [](const char* avail_entity, const char* own_entity, const std::string& avail_state) {
             if (std::string(avail_entity) == std::string(own_entity)) return false;  // check disabled
             return avail_state != "on";
@@ -4924,14 +4917,14 @@ script:
           if (t7_nopower) set_lbl(id(t7_value), "No power");
           if (t8_nopower) set_lbl(id(t8_value), "No power");
 
-          if (t1_offline) set_lbl(id(t1_value), "Offline");
-          if (t2_offline) set_lbl(id(t2_value), "Offline");
-          if (t3_offline) set_lbl(id(t3_value), "Offline");
-          if (t4_offline) set_lbl(id(t4_value), "Offline");
-          if (t5_offline) set_lbl(id(t5_value), "Offline");
-          if (t6_offline) set_lbl(id(t6_value), "Offline");
-          if (t7_offline) set_lbl(id(t7_value), "Offline");
-          if (t8_offline) set_lbl(id(t8_value), "Offline");
+          if (t1_offline) set_lbl(id(t1_value), "${UI_OFFLINE}");
+          if (t2_offline) set_lbl(id(t2_value), "${UI_OFFLINE}");
+          if (t3_offline) set_lbl(id(t3_value), "${UI_OFFLINE}");
+          if (t4_offline) set_lbl(id(t4_value), "${UI_OFFLINE}");
+          if (t5_offline) set_lbl(id(t5_value), "${UI_OFFLINE}");
+          if (t6_offline) set_lbl(id(t6_value), "${UI_OFFLINE}");
+          if (t7_offline) set_lbl(id(t7_value), "${UI_OFFLINE}");
+          if (t8_offline) set_lbl(id(t8_value), "${UI_OFFLINE}");
 
           if (id(active_control_kind) == "climate_temperature" && !lv_obj_has_flag(id(climate_detail_overlay), LV_OBJ_FLAG_HIDDEN)) {
             auto label_for_climate_mode = [](std::string mode) {
